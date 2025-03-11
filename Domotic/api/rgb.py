@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 import paho.mqtt.client as mqtt
 
 MQTT_BROKER = "mqtt_broker"
@@ -9,7 +9,12 @@ mqtt_client = mqtt.Client()
 mqtt_client.connect(MQTT_BROKER, 1883, 60)
 
 @app.get("/setColor")
-def set_color(r: int, g: int, b: int, brightness: int):
+def set_color(
+    r: int = Query(..., description="Red value"),
+    g: int = Query(..., description="Green value"),
+    b: int = Query(..., description="Blue value"),
+    brightness: int = Query(..., description="Brightness value")
+):
     message = f"{r},{g},{b},{brightness}"
     mqtt_client.publish(MQTT_TOPIC, message)
     return {"message": "Color sent", "values": (r, g, b, brightness)}

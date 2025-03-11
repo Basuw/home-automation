@@ -6,20 +6,29 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - mqtt
+      - mosquitto
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MQTT_BROKER=mosquitto
 
   listener:
-    build: ./listener
+    build: ./services
     depends_on:
-      - mqtt
+      - mosquitto
       - db
+    command: python /app/listener.py
 
-  mqtt:
-    image: eclipse-mosquitto
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto_broker
+    restart: unless-stopped
     ports:
-      - "1883:1883"
+      - "1883:1883"  # Port MQTT
+      - "9001:9001"  # Port WebSocket (optionnel)
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
 
   db:
     image: postgres
@@ -28,7 +37,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - .Data/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   grafana:
     image: grafana/grafana
@@ -38,3 +47,21 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - db
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  portainer:
+    image: portainer/portainer-ce
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
