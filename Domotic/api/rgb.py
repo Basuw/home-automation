@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Query
 import paho.mqtt.client as mqtt
+import os
 
-MQTT_BROKER = "mqtt_broker"
+MQTT_BROKER = os.getenv('MQTT_BROKER', 'mosquitto')
 MQTT_TOPIC = "esp32/led"
 
 app = FastAPI()

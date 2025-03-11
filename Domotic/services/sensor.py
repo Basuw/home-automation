@@ -1,8 +1,9 @@
+import os
 import paho.mqtt.client as mqtt
 import psycopg2
 import json
 
-MQTT_BROKER = "mqtt_broker"
+MQTT_BROKER = os.getenv('MQTT_BROKER', 'mosquitto')
 MQTT_TOPIC = "esp32/sensors"
 DB_CONFIG = {
     "dbname": "sensor_data",
