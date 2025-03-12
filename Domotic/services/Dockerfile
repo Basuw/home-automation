@@ -5,7 +5,7 @@ FROM python:3.12
 WORKDIR /app
 
 # Copier les fichiers nécessaires
-COPY sensor.py requirements.txt ./
+COPY sensor.py requirements.txt .env ./
 
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
