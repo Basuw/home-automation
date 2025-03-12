@@ -84,5 +84,5 @@ home-automation/
 ## License
 This project is open-source and licensed under the MIT License.
 
----
-🚀 **Enjoy building your smart home system!**
+## Author
+Bastien Jacquelin
