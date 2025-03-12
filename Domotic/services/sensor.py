@@ -5,6 +5,9 @@ import json
 
 MQTT_BROKER = os.getenv('MQTT_BROKER', 'mosquitto')
 MQTT_TOPIC = "esp32/sensors"
+MQTT_USERNAME = os.getenv('MQTT_USERNAME', '')
+MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', '')
+MQTT_PORT = int(os.getenv('MQTT_PORT', 1883))
 DB_CONFIG = {
     "dbname": "sensor_data",
     "user": "postgres",
@@ -23,7 +26,8 @@ def on_message(client, userdata, msg):
     conn.close()
 
 client = mqtt.Client()
-client.connect(MQTT_BROKER, 1883, 60)
+client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
+client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.subscribe(MQTT_TOPIC)
 client.on_message = on_message
 client.loop_forever()

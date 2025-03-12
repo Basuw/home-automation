@@ -4,8 +4,8 @@ __pycache__/
 *$py.class
 
 .env
-mosquitto/data/
-
+Domotic/mosquitto/data/
+Domotic/mosquitto/log/
 # C extensions
 *.so
 
