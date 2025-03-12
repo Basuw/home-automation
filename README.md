@@ -7,6 +7,8 @@ This project is a **home automation system** that allows you to:
 - Visualize the collected data in **Grafana dashboards**.
 - Manage all services using **Docker** and **Docker Compose**.
 
+This project is link to [my arduino project](https://github.com/Basuw/Moisture_termic_sensor-Arduino).
+
 ## Architecture
 The system consists of the following components:
 
