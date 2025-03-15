@@ -26,15 +26,27 @@ services:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
-
   db:
-    image: postgres
+    image: postgres:latest
+    restart: always
     environment:
-      POSTGRES_DB: sensor_data
-      POSTGRES_USER: postgres
+      POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-    volumes:
-      - ./Data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      POSTGRES_DB: domotic
+    ports:
+      - "9097:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+    ports:
+      - "9098:80"
+    depends_on:
+      - postgres
 
   grafana:
     image: grafana/grafana

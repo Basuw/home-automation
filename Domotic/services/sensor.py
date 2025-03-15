@@ -12,12 +12,19 @@ MQTT_TOPIC = "esp32/sensor"
 MQTT_USER = os.getenv('MQTT_USER')  # Add user
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')  # Add password
 
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_NAME = os.getenv('DB_NAME')
+
 MQTT_PORT = int(os.getenv('MQTT_PORT', 1883))
 DB_CONFIG = {
-    "dbname": "sensor_data",
-    "user": "postgres",
-    "password": "password",
-    "host": "db"
+    "dbname": DB_NAME,
+    "user": DB_USER,
+    "password": DB_PASSWORD,
+    "port": DB_PORT,
+    "host": DB_HOST
 }
 
 def on_message(client, userdata, msg):
