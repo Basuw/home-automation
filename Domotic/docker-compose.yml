@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   api:
     build: ./api
@@ -7,12 +5,16 @@ services:
       - "8000:8000"
     depends_on:
       - mosquitto
+    networks:
+      - domotic-net
 
   listener:
     build: ./services
     depends_on:
       - mosquitto
       - db
+    networks:
+      - domotic-net
 
   mosquitto:
     image: eclipse-mosquitto:latest
@@ -26,6 +28,9 @@ services:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
+    networks:
+      - domotic-net
+
   db:
     image: postgres:latest
     restart: always
@@ -35,6 +40,8 @@ services:
       POSTGRES_DB: domotic
     ports:
       - "9097:5432"
+    networks:
+      - domotic-net
 
   pgadmin:
     image: dpage/pgadmin4
@@ -46,7 +53,9 @@ services:
     ports:
       - "9098:80"
     depends_on:
-      - postgres
+      - db
+    networks:
+      - domotic-net
 
   grafana:
     image: grafana/grafana
@@ -56,6 +65,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - db
+    networks:
+      - domotic-net
 
   adminer:
     image: adminer
@@ -63,6 +74,8 @@ services:
       - "8080:8080"
     depends_on:
       - db
+    networks:
+      - domotic-net
 
   portainer:
     image: portainer/portainer-ce
@@ -71,6 +84,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    networks:
+      - domotic-net
 
 volumes:
   portainer_data:
+
+networks:
+  domotic-net:
+    driver: bridge
