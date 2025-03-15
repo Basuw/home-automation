@@ -24,8 +24,8 @@ def on_message(client, userdata, msg):
     data = json.loads(msg.payload.decode())
     conn = psycopg2.connect(**DB_CONFIG)
     cur = conn.cursor()
-    cur.execute("INSERT INTO measurements (temperature, humidity, light) VALUES (%s, %s, %s)", 
-                (data["temperature"], data["humidity"], data["light"]))
+    cur.execute("INSERT INTO measurements (temperature, humidity, light, idSensor) VALUES (%s, %s, %s)", 
+                (data["temperature"], data["humidity"], data["light"], data["idSensor"]))
     conn.commit()
     cur.close()
     conn.close()
