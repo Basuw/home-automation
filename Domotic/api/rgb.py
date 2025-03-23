@@ -17,7 +17,7 @@ print(MQTT_PASSWORD)
 app = FastAPI()
 client = mqtt.Client()
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)  # Set username and password
-client.connect(MQTT_BROKER, 1883, 60)
+client.connect(MQTT_BROKER, 1883, 60)  # Specify URL and port
 
 @app.get("/setColor")
 def set_color(
@@ -28,4 +28,5 @@ def set_color(
 ):
     message = f"{r},{g},{b},{brightness}"
     client.publish(MQTT_TOPIC, message)  # Change mqtt_client to client
-    return {"message": "Color sent", "values": (r, g, b, brightness)}
+    connection_status = "Connected" if client.is_connected() else "Not connected"
+    return {"message": "Color sent", "values": (r, g, b, brightness), "connection_status": connection_status}
