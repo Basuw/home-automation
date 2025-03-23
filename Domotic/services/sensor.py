@@ -11,6 +11,7 @@ MQTT_BROKER = "mosquitto"
 MQTT_TOPIC = "esp32/sensor"
 MQTT_USER = os.getenv('MQTT_USER')  # Add user
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD')  # Add password
+MQTT_PORT = int(os.getenv('MQTT_PORT', 1883))
 
 DB_USER = os.getenv('DB_USER')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
@@ -18,7 +19,6 @@ DB_HOST = os.getenv('DB_HOST')
 DB_PORT = os.getenv('DB_PORT')
 DB_NAME = os.getenv('DB_NAME')
 
-MQTT_PORT = int(os.getenv('MQTT_PORT', 1883))
 DB_CONFIG = {
     "dbname": DB_NAME,
     "user": DB_USER,
@@ -41,7 +41,7 @@ def on_message(client, userdata, msg):
         print(f"Failed to process message: {msg.payload.decode()}")
         print(f"Error: {e}")
 
-client = mqtt.Client()
+client = mqtt.Client(client_id="sensor")
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 client.connect(MQTT_BROKER, MQTT_PORT, 60)
 client.subscribe(MQTT_TOPIC)
