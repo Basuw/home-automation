@@ -28,14 +28,18 @@ DB_CONFIG = {
 }
 
 def on_message(client, userdata, msg):
-    data = json.loads(msg.payload.decode())
-    conn = psycopg2.connect(**DB_CONFIG)
-    cur = conn.cursor()
-    cur.execute("INSERT INTO measurements (temperature, humidity, light, idSensor) VALUES (%s, %s, %s)", 
-                (data["temperature"], data["humidity"], data["light"], data["idSensor"]))
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        data = json.loads(msg.payload.decode())
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+        cur.execute("INSERT INTO measurements (temperature, humidity, idSensor) VALUES (%s, %s, %s)", 
+                    (data["temperature"], data["humidity"], data["idSensor"]))
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(f"Failed to process message: {msg.payload.decode()}")
+        print(f"Error: {e}")
 
 client = mqtt.Client()
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
