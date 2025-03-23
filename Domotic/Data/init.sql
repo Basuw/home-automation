@@ -1,3 +1,9 @@
+CREATE TABLE sensors (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    location VARCHAR(255)
+);
+
 CREATE TABLE measurements (
     id SERIAL PRIMARY KEY,
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -5,10 +11,4 @@ CREATE TABLE measurements (
     humidity FLOAT,
     light FLOAT,
     idSensor INT REFERENCES sensors(id)
-);
-
-CREATE TABLE sensors (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    location VARCHAR(255)
 );
