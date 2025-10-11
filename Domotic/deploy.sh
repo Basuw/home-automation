@@ -6,8 +6,8 @@
 set -e
 
 # Configuration
-DOMAIN=${DOMAIN:-"yourdomain.com"}
-EMAIL=${LETSENCRYPT_EMAIL:-"admin@yourdomain.com"}
+DOMAIN=${DOMAIN:-"jacquelin63.freeboxos.fr"}
+EMAIL=${LETSENCRYPT_EMAIL:-"admin@jacquelin63.freeboxos.fr"}
 ENV=${1:-"production"}
 
 echo "🚀 Démarrage du déploiement Home Automation System"
@@ -21,7 +21,7 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
+if ! docker compose version &> /dev/null; then
     echo "❌ Docker Compose n'est pas installé"
     exit 1
 fi
@@ -45,11 +45,11 @@ chmod -R 777 mosquitto/data mosquitto/log
 
 # Remplacement du domaine dans la config Nginx
 echo "🔧 Configuration Nginx pour le domaine $DOMAIN..."
-sed -i "s/yourdomain.com/$DOMAIN/g" nginx/conf.d/default.conf
+sed -i "s/jacquelin63.freeboxos.fr/$DOMAIN/g" nginx/conf.d/default.conf
 
 # Première phase : démarrage sans SSL
 echo "🔄 Phase 1: Démarrage des services de base..."
-docker-compose up -d db nextcloud-db
+docker compose up -d db nextcloud-db
 
 # Attendre que les bases de données soient prêtes
 echo "⏳ Attente des bases de données..."
@@ -57,7 +57,7 @@ sleep 30
 
 # Démarrage des autres services
 echo "🔄 Phase 2: Démarrage des services applicatifs..."
-docker-compose up -d api listener mosquitto pgadmin grafana portainer nextcloud
+docker compose up -d api listener mosquitto pgadmin grafana portainer nextcloud
 
 # Attendre que les services soient prêts
 echo "⏳ Attente des services..."
@@ -67,7 +67,7 @@ sleep 20
 echo "🔄 Phase 3: Configuration SSL..."
 
 # Démarrer Nginx sans SSL pour la validation Let's Encrypt
-docker-compose up -d nginx
+docker compose up -d nginx
 
 # Attendre que Nginx soit prêt
 echo "⏳ Attente de Nginx..."
@@ -77,7 +77,7 @@ sleep 10
 echo "🔐 Obtention des certificats SSL..."
 if [ "$ENV" = "production" ]; then
     # Production - certificats réels
-    docker-compose run --rm certbot certonly --webroot \
+    docker compose run --rm certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
         --agree-tos \
@@ -90,7 +90,7 @@ if [ "$ENV" = "production" ]; then
         -d nextcloud.$DOMAIN
 else
     # Staging - certificats de test
-    docker-compose run --rm certbot certonly --webroot \
+    docker compose run --rm certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
         --agree-tos \
@@ -106,7 +106,7 @@ fi
 
 # Redémarrer Nginx avec SSL
 echo "🔄 Redémarrage avec SSL..."
-docker-compose restart nginx
+docker compose restart nginx
 
 # Vérification finale
 echo "🔍 Vérification des services..."
@@ -124,7 +124,7 @@ done
 
 # Configuration du renouvellement automatique
 echo "🔄 Configuration du renouvellement automatique SSL..."
-(crontab -l 2>/dev/null; echo "0 3 * * * cd $(pwd) && docker-compose run --rm certbot renew && docker-compose restart nginx") | crontab -
+(crontab -l 2>/dev/null; echo "0 3 * * * cd $(pwd) && docker compose run --rm certbot renew && docker compose restart nginx") | crontab -
 
 echo ""
 echo "🎉 Déploiement terminé !"

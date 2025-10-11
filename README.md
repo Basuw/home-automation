@@ -37,12 +37,12 @@ Le système comprend les composants suivants :
 Avant de démarrer, configurez votre DNS pour pointer vers votre serveur :
 
 ```
-yourdomain.com           → IP_DE_VOTRE_SERVEUR
-api.yourdomain.com       → IP_DE_VOTRE_SERVEUR
-grafana.yourdomain.com   → IP_DE_VOTRE_SERVEUR
-pgadmin.yourdomain.com   → IP_DE_VOTRE_SERVEUR
-portainer.yourdomain.com → IP_DE_VOTRE_SERVEUR
-nextcloud.yourdomain.com → IP_DE_VOTRE_SERVEUR
+jacquelin63.freeboxos.fr           → IP_DE_VOTRE_SERVEUR
+api.jacquelin63.freeboxos.fr       → IP_DE_VOTRE_SERVEUR
+grafana.jacquelin63.freeboxos.fr   → IP_DE_VOTRE_SERVEUR
+pgadmin.jacquelin63.freeboxos.fr   → IP_DE_VOTRE_SERVEUR
+portainer.jacquelin63.freeboxos.fr → IP_DE_VOTRE_SERVEUR
+nextcloud.jacquelin63.freeboxos.fr → IP_DE_VOTRE_SERVEUR
 ```
 
 ### Configuration de votre routeur/box
@@ -77,7 +77,7 @@ nano .env
 **Variables importantes à modifier :**
 ```env
 # Votre domaine
-DOMAIN=yourdomain.com
+DOMAIN=jacquelin63.freeboxos.fr
 
 # Mots de passe sécurisés
 POSTGRES_PASSWORD=votre_mot_de_passe_postgres_securise
@@ -88,11 +88,11 @@ MYSQL_ROOT_PASSWORD=votre_mot_de_passe_mysql_root_securise
 MYSQL_PASSWORD=votre_mot_de_passe_mysql_nextcloud_securise
 
 # Email pour Let's Encrypt
-LETSENCRYPT_EMAIL=admin@yourdomain.com
+LETSENCRYPT_EMAIL=admin@jacquelin63.freeboxos.fr
 ```
 
 #### Configurer Nginx
-Remplacez `yourdomain.com` par votre domaine dans :
+Remplacez `jacquelin63.freeboxos.fr` par votre domaine dans :
 ```bash
 nano nginx/conf.d/default.conf
 ```
@@ -105,7 +105,7 @@ nano nginx/conf.d/default.conf
 docker-compose up -d nginx certbot
 
 # Obtenir les certificats Let's Encrypt
-docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@domain.com --agree-tos --no-eff-email -d yourdomain.com -d api.yourdomain.com -d grafana.yourdomain.com -d pgadmin.yourdomain.com -d portainer.yourdomain.com -d nextcloud.yourdomain.com
+docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@domain.com --agree-tos --no-eff-email -d jacquelin63.freeboxos.fr -d api.jacquelin63.freeboxos.fr -d grafana.jacquelin63.freeboxos.fr -d pgadmin.jacquelin63.freeboxos.fr -d portainer.jacquelin63.freeboxos.fr -d nextcloud.jacquelin63.freeboxos.fr
 
 # Redémarrer avec la configuration SSL complète
 docker-compose down
@@ -122,32 +122,32 @@ docker-compose up -d
 Une fois tous les services démarrés, accédez via HTTPS :
 
 ### 🏠 Dashboard Principal
-- **URL** : https://yourdomain.com
+- **URL** : https://jacquelin63.freeboxos.fr
 - **Service** : Grafana (tableau de bord principal)
 - **Login** : admin / [GF_SECURITY_ADMIN_PASSWORD]
 
 ### 🔌 API Domotique
-- **URL** : https://api.yourdomain.com
-- **Documentation** : https://api.yourdomain.com/docs
-- **Exemple** : `curl "https://api.yourdomain.com/setColor?r=255&g=100&b=50&brightness=80"`
+- **URL** : https://api.jacquelin63.freeboxos.fr
+- **Documentation** : https://api.jacquelin63.freeboxos.fr/docs
+- **Exemple** : `curl "https://api.jacquelin63.freeboxos.fr/setColor?r=255&g=100&b=50&brightness=80"`
 
 ### 📊 Grafana (Monitoring)
-- **URL** : https://grafana.yourdomain.com
+- **URL** : https://grafana.jacquelin63.freeboxos.fr
 - **Login** : admin / [GF_SECURITY_ADMIN_PASSWORD]
 - **Usage** : Tableaux de bord, alertes, monitoring
 
 ### 🗄️ PgAdmin (Base de données)
-- **URL** : https://pgadmin.yourdomain.com
+- **URL** : https://pgadmin.jacquelin63.freeboxos.fr
 - **Login** : [PGADMIN_DEFAULT_EMAIL] / [PGADMIN_DEFAULT_PASSWORD]
 - **Usage** : Administration PostgreSQL
 
 ### 🐳 Portainer (Conteneurs)
-- **URL** : https://portainer.yourdomain.com
+- **URL** : https://portainer.jacquelin63.freeboxos.fr
 - **Premier accès** : Créer compte admin
 - **Usage** : Gestion des conteneurs Docker
 
 ### ☁️ Nextcloud (Stockage Cloud)
-- **URL** : https://nextcloud.yourdomain.com
+- **URL** : https://nextcloud.jacquelin63.freeboxos.fr
 - **Login** : admin / [NEXTCLOUD_ADMIN_PASSWORD]
 - **Usage** : Stockage fichiers, synchronisation, calendrier, contacts
 
@@ -262,14 +262,14 @@ docker-compose logs -f
 ## 🐛 Dépannage
 
 ### Services non accessibles
-1. Vérifiez DNS : `nslookup api.yourdomain.com`
+1. Vérifiez DNS : `nslookup api.jacquelin63.freeboxos.fr`
 2. Vérifiez certificats SSL : `docker-compose logs certbot`
 3. Vérifiez configuration Nginx : `docker-compose exec nginx nginx -t`
 
 ### Problèmes SSL
 ```bash
 # Regénérer les certificats
-docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --force-renewal -d yourdomain.com
+docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --force-renewal -d jacquelin63.freeboxos.fr
 ```
 
 ### Base de données
@@ -306,4 +306,4 @@ Bastien Jacquelin
 
 ---
 
-**Note importante** : Remplacez `yourdomain.com` par votre vrai domaine dans tous les fichiers de configuration avant le déploiement.
+**Note importante** : Remplacez `jacquelin63.freeboxos.fr` par votre vrai domaine dans tous les fichiers de configuration avant le déploiement.
