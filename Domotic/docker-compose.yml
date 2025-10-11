@@ -26,11 +26,12 @@ services:
     image: certbot/certbot
     container_name: certbot
     restart: "no"
+    user: "0:0"  # Run as root to avoid permission issues
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
       - ./nginx/ssl:/etc/nginx/ssl
-    command: certonly --webroot --webroot-path=/var/www/certbot --email ${LETSENCRYPT_EMAIL} --agree-tos --no-eff-email --staging -d ${DOMAIN} -d api.${DOMAIN} -d grafana.${DOMAIN} -d pgadmin.${DOMAIN} -d portainer.${DOMAIN} -d nextcloud.${DOMAIN}
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 1; done;'"
 
   api:
     build: ./api

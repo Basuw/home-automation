@@ -16,16 +16,16 @@ case $ACTION in
         
         # Sauvegarde PostgreSQL
         echo "📊 Sauvegarde base de données PostgreSQL..."
-        docker-compose exec -T db pg_dump -U admin domotic > $BACKUP_DIR/postgres_$DATE.sql
+        docker compose exec -T db pg_dump -U admin domotic > $BACKUP_DIR/postgres_$DATE.sql
         
         # Sauvegarde Nextcloud
         echo "☁️ Sauvegarde données Nextcloud..."
-        docker-compose run --rm -v nextcloud_data:/data -v $(pwd)/$BACKUP_DIR:/backup alpine \
+        docker compose run --rm -v nextcloud_data:/data -v $(pwd)/$BACKUP_DIR:/backup alpine \
             tar czf /backup/nextcloud_$DATE.tar.gz /data
         
         # Sauvegarde Grafana
         echo "📈 Sauvegarde configuration Grafana..."
-        docker-compose run --rm -v grafana_data:/data -v $(pwd)/$BACKUP_DIR:/backup alpine \
+        docker compose run --rm -v grafana_data:/data -v $(pwd)/$BACKUP_DIR:/backup alpine \
             tar czf /backup/grafana_$DATE.tar.gz /data
         
         echo "✅ Sauvegarde terminée dans $BACKUP_DIR/"
@@ -42,21 +42,21 @@ case $ACTION in
         
         if [[ $BACKUP_FILE == *"postgres"* ]]; then
             echo "📊 Restauration PostgreSQL..."
-            docker-compose exec -T db psql -U admin -d domotic < $BACKUP_FILE
+            docker compose exec -T db psql -U admin -d domotic < $BACKUP_FILE
         elif [[ $BACKUP_FILE == *"nextcloud"* ]]; then
             echo "☁️ Restauration Nextcloud..."
-            docker-compose down nextcloud
-            docker volume rm $(docker-compose config --services | grep nextcloud)_nextcloud_data || true
-            docker-compose run --rm -v nextcloud_data:/data -v $(pwd)/backups:/backup alpine \
+            docker compose down nextcloud
+            docker volume rm $(docker compose config --services | grep nextcloud)_nextcloud_data || true
+            docker compose run --rm -v nextcloud_data:/data -v $(pwd)/backups:/backup alpine \
                 tar xzf /backup/$(basename $BACKUP_FILE) -C /
-            docker-compose up -d nextcloud
+            docker compose up -d nextcloud
         elif [[ $BACKUP_FILE == *"grafana"* ]]; then
             echo "📈 Restauration Grafana..."
-            docker-compose down grafana
-            docker volume rm $(docker-compose config --services | grep grafana)_grafana_data || true
-            docker-compose run --rm -v grafana_data:/data -v $(pwd)/backups:/backup alpine \
+            docker compose down grafana
+            docker volume rm $(docker compose config --services | grep grafana)_grafana_data || true
+            docker compose run --rm -v grafana_data:/data -v $(pwd)/backups:/backup alpine \
                 tar xzf /backup/$(basename $BACKUP_FILE) -C /
-            docker-compose up -d grafana
+            docker compose up -d grafana
         fi
         
         echo "✅ Restauration terminée"
@@ -71,11 +71,11 @@ case $ACTION in
         
         # Arrêt des services
         echo "🛑 Arrêt des services..."
-        docker-compose down
+        docker compose down
         
         # Mise à jour des images
         echo "📦 Téléchargement des nouvelles images..."
-        docker-compose pull
+        docker compose pull
         
         # Nettoyage
         echo "🧹 Nettoyage des anciennes images..."
@@ -83,7 +83,7 @@ case $ACTION in
         
         # Redémarrage
         echo "🚀 Redémarrage des services..."
-        docker-compose up -d
+        docker compose up -d
         
         echo "✅ Mise à jour terminée"
         ;;
@@ -92,10 +92,10 @@ case $ACTION in
         SERVICE=$2
         if [ -z "$SERVICE" ]; then
             echo "📋 Logs de tous les services:"
-            docker-compose logs --tail=50 -f
+            docker compose logs --tail=50 -f
         else
             echo "📋 Logs du service $SERVICE:"
-            docker-compose logs --tail=50 -f $SERVICE
+            docker compose logs --tail=50 -f $SERVICE
         fi
         ;;
         
@@ -104,7 +104,7 @@ case $ACTION in
         echo ""
         
         # Statut des conteneurs
-        docker-compose ps
+        docker compose ps
         echo ""
         
         # Utilisation des ressources
@@ -135,10 +135,10 @@ case $ACTION in
         echo "🔐 Renouvellement des certificats SSL..."
         
         # Renouvellement
-        docker-compose run --rm certbot renew
+        docker compose run --rm certbot renew
         
         # Redémarrage Nginx
-        docker-compose restart nginx
+        docker compose restart nginx
         
         # Vérification
         DOMAIN=$(grep DOMAIN .env | cut -d'=' -f2)
@@ -154,7 +154,7 @@ case $ACTION in
         
         # Arrêt de tous les services
         echo "🛑 Arrêt des services..."
-        docker-compose down
+        docker compose down
         
         # Nettoyage Docker
         echo "🗑️ Nettoyage des images inutilisées..."
@@ -168,7 +168,7 @@ case $ACTION in
         
         # Redémarrage
         echo "🚀 Redémarrage des services..."
-        docker-compose up -d
+        docker compose up -d
         
         echo "✅ Nettoyage terminé"
         ;;

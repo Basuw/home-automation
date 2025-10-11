@@ -11,7 +11,7 @@ echo "📁 Vérification des fichiers..."
 
 required_files=(
     ".env"
-    "docker-compose.yml" 
+    "docker compose.yml" 
     "nginx/nginx.conf"
     "nginx/conf.d/default.conf"
 )
@@ -62,15 +62,15 @@ else
     echo "✅ Configuration Nginx mise à jour avec votre domaine"
 fi
 
-# Test de syntaxe docker-compose
+# Test de syntaxe docker compose
 echo ""
-echo "🐳 Validation docker-compose..."
+echo "🐳 Validation docker compose..."
 
-if docker-compose config > /dev/null 2>&1; then
-    echo "✅ docker-compose.yml valide"
+if docker compose config > /dev/null 2>&1; then
+    echo "✅ docker compose.yml valide"
 else
-    echo "❌ docker-compose.yml invalide"
-    docker-compose config
+    echo "❌ docker compose.yml invalide"
+    docker compose config
     exit 1
 fi
 
@@ -111,7 +111,7 @@ echo ""
 echo "✅ Configuration de base validée"
 echo "✅ Variables d'environnement configurées"
 echo "✅ Configuration Nginx adaptée"
-echo "✅ docker-compose.yml valide"
+echo "✅ docker compose.yml valide"
 echo ""
 echo "🚀 Votre configuration semble prête pour le déploiement !"
 echo ""
