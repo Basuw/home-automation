@@ -1,0 +1,37 @@
+# Docker Compose Override pour développement local
+# Ce fichier est automatiquement utilisé avec docker-compose up
+# Il désactive SSL et expose les ports directement pour le développement
+
+services:
+  # Désactiver Nginx et Certbot en développement
+  nginx:
+    profiles: ["production"]
+  
+  certbot:
+    profiles: ["production"]
+  
+  # Exposer les ports directement en développement
+  api:
+    ports:
+      - "8000:8000"
+  
+  grafana:
+    ports:
+      - "3000:3000"
+  
+  pgadmin:
+    ports:
+      - "9098:80"
+  
+  portainer:
+    ports:
+      - "9000:9000"
+  
+  nextcloud:
+    ports:
+      - "8080:80"
+  
+  # Garder l'accès direct à PostgreSQL
+  db:
+    ports:
+      - "9097:5432"

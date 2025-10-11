@@ -1,17 +1,70 @@
 services:
+  # Nginx Reverse Proxy with SSL
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - api
+      - grafana
+      - pgadmin
+      - portainer
+      - nextcloud
+    networks:
+      - domotic-net
+
+  # Let's Encrypt SSL Certificate Manager
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    restart: "no"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./nginx/ssl:/etc/nginx/ssl
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${LETSENCRYPT_EMAIL} --agree-tos --no-eff-email --staging -d ${DOMAIN} -d api.${DOMAIN} -d grafana.${DOMAIN} -d pgadmin.${DOMAIN} -d portainer.${DOMAIN} -d nextcloud.${DOMAIN}
+
   api:
     build: ./api
     container_name: api
-    ports:
-      - "8000:8000"
+    restart: unless-stopped
+    expose:
+      - "8000"
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_BROKER=${MQTT_BROKER}
+      - TZ=${TIMEZONE}
     depends_on:
       - mosquitto
+      - db
     networks:
       - domotic-net
 
   listener:
     build: ./services
     container_name: listenner
+    restart: unless-stopped
+    environment:
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_BROKER=${MQTT_BROKER}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - TZ=${TIMEZONE}
     depends_on:
       - mosquitto
       - db
@@ -30,6 +83,8 @@ services:
       - ./mosquitto/config:/mosquitto/config:rw
       - ./mosquitto/data:/mosquitto/data:rw
       - ./mosquitto/log:/mosquitto/log:rw
+    environment:
+      - TZ=${TIMEZONE}
     networks:
       - domotic-net
 
@@ -38,13 +93,15 @@ services:
     container_name: db
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: domotic
-    ports:
-      - "9097:5432"
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TIMEZONE}
+    expose:
+      - "5432"
     volumes:
       - ./Data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - domotic-net
 
@@ -53,39 +110,97 @@ services:
     container_name: pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: secret
-    ports:
-      - "9098:80"
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      TZ: ${TIMEZONE}
+    expose:
+      - "80"
     depends_on:
       - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
     networks:
       - domotic-net
 
   grafana:
     image: grafana/grafana
     container_name: grafana
-    ports:
-      - "3000:3000"
+    restart: unless-stopped
+    expose:
+      - "3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+      TZ: ${TIMEZONE}
     depends_on:
       - db
+    volumes:
+      - grafana_data:/var/lib/grafana
     networks:
       - domotic-net
 
   portainer:
     image: portainer/portainer-ce
-    ports:
-      - "9000:9000"
+    container_name: portainer
+    restart: unless-stopped
+    expose:
+      - "9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    environment:
+      - TZ=${TIMEZONE}
+    networks:
+      - domotic-net
+
+  # Nextcloud with MySQL
+  nextcloud-db:
+    image: mysql:8.0
+    container_name: nextcloud-db
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      TZ: ${TIMEZONE}
+    volumes:
+      - nextcloud_db:/var/lib/mysql
+    networks:
+      - domotic-net
+
+  nextcloud:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: always
+    expose:
+      - "80"
+    environment:
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_HOST: nextcloud-db
+      NEXTCLOUD_ADMIN_USER: ${NEXTCLOUD_ADMIN_USER}
+      NEXTCLOUD_ADMIN_PASSWORD: ${NEXTCLOUD_ADMIN_PASSWORD}
+      NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS}
+      TZ: ${TIMEZONE}
+    volumes:
+      - nextcloud_data:/var/www/html
+    depends_on:
+      - nextcloud-db
     networks:
       - domotic-net
 
 volumes:
   portainer_data:
+  postgres_data:
+  pgadmin_data:
+  grafana_data:
+  nextcloud_data:
+  nextcloud_db:
+  nginx_logs:
 
 networks:
   domotic-net:
