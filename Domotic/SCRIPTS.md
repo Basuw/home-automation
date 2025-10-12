@@ -24,11 +24,11 @@ Vérifie que votre configuration est correcte avant le déploiement.
 ```
 
 ### Ce qu'il vérifie
-- ✅ Présence des fichiers requis (`.env`, `docker-compose.yml`, configs Nginx)
+- ✅ Présence des fichiers requis (`.env`, `docker compose.yml`, configs Nginx)
 - ✅ Toutes les variables d'environnement sont définies
 - ✅ Pas de valeurs par défaut dangereuses
 - ✅ Configuration Nginx adaptée à votre domaine
-- ✅ Syntaxe du `docker-compose.yml`
+- ✅ Syntaxe du `docker compose.yml`
 - ✅ Résolution DNS de votre domaine
 - ✅ Disponibilité des ports 80 et 443
 
@@ -38,7 +38,7 @@ Vérifie que votre configuration est correcte avant le déploiement.
 
 📁 Vérification des fichiers...
 ✅ .env
-✅ docker-compose.yml
+✅ docker compose.yml
 ✅ nginx/nginx.conf
 ✅ nginx/conf.d/default.conf
 
@@ -233,7 +233,7 @@ Nettoie complètement les conteneurs existants avant un redéploiement.
 ### Quand l'utiliser
 - **Avant un redéploiement** si des conteneurs existent déjà
 - En cas de conflits de noms de conteneurs
-- Si `docker-compose up` échoue à cause de conteneurs existants
+- Si `docker compose up` échoue à cause de conteneurs existants
 - Pour "repartir de zéro"
 
 ### ⚠️ Attention
@@ -350,7 +350,7 @@ curl http://votre-domaine.fr/.well-known/acme-challenge/
 ## 📚 Ressources Supplémentaires
 
 - **README principal** : Instructions complètes d'installation
-- **docker-compose.yml** : Configuration des services
+- **docker compose.yml** : Configuration des services
 - **.env.example** : Template des variables d'environnement
 - **Logs** : `docker compose logs -f` pour voir les logs en temps réel
 

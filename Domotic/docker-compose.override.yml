@@ -1,5 +1,5 @@
 # Docker Compose Override pour développement local
-# Ce fichier est automatiquement utilisé avec docker-compose up
+# Ce fichier est automatiquement utilisé avec docker compose up
 # Il désactive SSL et expose les ports directement pour le développement
 
 services:

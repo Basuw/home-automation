@@ -59,10 +59,10 @@ Modifiez `.env` avec vos vraies valeurs :
 
 ```bash
 # Démarrer certbot pour obtenir les certificats
-docker-compose up -d certbot
+docker compose up -d certbot
 
 # Obtenir les certificats SSL
-docker-compose exec certbot certbot certonly \
+docker compose exec certbot certbot certonly \
   --webroot \
   --webroot-path /var/www/certbot \
   --email votre-email@example.com \
@@ -80,28 +80,28 @@ docker-compose exec certbot certbot certonly \
 
 ```bash
 # 1. Services de base (bases de données)
-docker-compose up -d db mosquitto
+docker compose up -d db mosquitto
 
 # 2. Attendre que les DB soient prêtes
 sleep 30
 
 # 3. Services métier
-docker-compose up -d api listener
+docker compose up -d api listener
 
 # 4. Services web
-docker-compose up -d grafana pgadmin portainer nextcloud-db
+docker compose up -d grafana pgadmin portainer nextcloud-db
 sleep 30
-docker-compose up -d nextcloud
+docker compose up -d nextcloud
 
 # 5. Nginx avec SSL
-docker-compose up -d nginx
+docker compose up -d nginx
 ```
 
 ### 5. Démarrage complet (si certificats déjà présents)
 
 ```bash
 # Si tout est déjà configuré
-docker-compose up -d
+docker compose up -d
 ```
 
 ## 🔄 Gestion des certificats SSL
@@ -111,8 +111,8 @@ docker-compose up -d
 Créer un script `renew_ssl.sh` :
 ```bash
 #!/bin/bash
-docker-compose exec certbot certbot renew --quiet
-docker-compose restart nginx
+docker compose exec certbot certbot renew --quiet
+docker compose restart nginx
 ```
 
 ### Configuration cron (Linux/Mac)
@@ -126,19 +126,19 @@ docker-compose restart nginx
 ### Vérifier l'état des services
 ```bash
 # Status des conteneurs
-docker-compose ps
+docker compose ps
 
 # Logs des services
-docker-compose logs nginx
-docker-compose logs certbot
-docker-compose logs api
-docker-compose logs listener
+docker compose logs nginx
+docker compose logs certbot
+docker compose logs api
+docker compose logs listener
 ```
 
 ### Tester les certificats
 ```bash
 # Lister les certificats
-docker-compose exec certbot certbot certificates
+docker compose exec certbot certbot certificates
 
 # Vérifier l'expiration
 openssl x509 -in nginx/ssl/live/jacquelin63.freeboxos.fr/cert.pem -text -noout | grep "Not After"
@@ -155,7 +155,7 @@ openssl x509 -in nginx/ssl/live/jacquelin63.freeboxos.fr/cert.pem -text -noout |
 ### Nettoyage complet
 ```bash
 # Arrêter tous les services
-docker-compose down -v
+docker compose down -v
 
 # Nettoyer les volumes (ATTENTION : supprime toutes les données)
 docker volume prune
@@ -176,7 +176,7 @@ rm -rf nginx/ssl/*
 ### Les certificats ne se génèrent pas
 ```bash
 # Vérifier les logs certbot
-docker-compose logs certbot
+docker compose logs certbot
 
 # Vérifier la configuration DNS
 nslookup jacquelin63.freeboxos.fr
@@ -188,7 +188,7 @@ curl http://jacquelin63.freeboxos.fr/.well-known/acme-challenge/test
 ### Nginx ne démarre pas
 ```bash
 # Vérifier la configuration nginx
-docker-compose exec nginx nginx -t
+docker compose exec nginx nginx -t
 
 # Utiliser une config temporaire sans SSL
 mv nginx/conf.d/default.conf nginx/conf.d/default.conf.bak
@@ -201,7 +201,7 @@ mv nginx/conf.d/default.conf nginx/conf.d/default.conf.bak
 netstat -tlnp | grep -E ':(80|443|1883|9001)'
 
 # Vérifier les logs du reverse proxy
-docker-compose logs nginx | tail -50
+docker compose logs nginx | tail -50
 ```
 
 ## 📁 Structure du projet
@@ -210,8 +210,8 @@ docker-compose logs nginx | tail -50
 Domotic/
 ├── .env                    # Configuration principale
 ├── .env.example           # Template de configuration
-├── docker-compose.yml     # Orchestration des services
-├── docker-compose.override.yml # Surcharges locales
+├── docker compose.yml     # Orchestration des services
+├── docker compose.override.yml # Surcharges locales
 ├── README.md              # Documentation
 ├── api/                   # API FastAPI
 ├── services/              # Service listener MQTT
@@ -242,7 +242,7 @@ Domotic/
 
 ## 📞 Support
 
-- Vérifiez les logs avec `docker-compose logs <service>`
+- Vérifiez les logs avec `docker compose logs <service>`
 - Consultez la documentation des services individuels
 - Utilisez les scripts de maintenance fournis
 
@@ -250,8 +250,8 @@ Domotic/
 
 ```bash
 # Mettre à jour les images Docker
-docker-compose pull
+docker compose pull
 
 # Redémarrer avec les nouvelles images
-docker-compose up -d
+docker compose up -d
 ```

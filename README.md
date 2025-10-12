@@ -178,7 +178,7 @@ chmod +x *.sh
 Le script `validate.sh` vérifie :
 - ✅ Présence de tous les fichiers requis
 - ✅ Configuration des variables d'environnement
-- ✅ Syntaxe du `docker-compose.yml`
+- ✅ Syntaxe du `docker compose.yml`
 - ✅ Résolution DNS de votre domaine
 - ✅ Disponibilité des ports 80 et 443
 
@@ -276,7 +276,7 @@ docker compose up -d
 #### 🆘 Dépannage du premier démarrage
 
 **Problème : Certbot échoue avec "Connection refused" ou "404"**
-- Vérifiez que Nginx est bien démarré : `docker-compose ps nginx`
+- Vérifiez que Nginx est bien démarré : `docker compose ps nginx`
 - Vérifiez que le port 80 est accessible depuis Internet
 - Testez l'accès au dossier ACME : `curl http://votre-domaine.fr/.well-known/acme-challenge/`
 
@@ -288,19 +288,19 @@ docker compose up -d
 **Problème : Nginx ne démarre pas après ajout du SSL**
 ```bash
 # Vérifier la configuration Nginx
-docker-compose exec nginx nginx -t
+docker compose exec nginx nginx -t
 
 # Vérifier que les certificats existent
-docker-compose exec nginx ls -la /etc/letsencrypt/live/votre-domaine/
+docker compose exec nginx ls -la /etc/letsencrypt/live/votre-domaine/
 
 # Voir les logs détaillés
-docker-compose logs nginx
+docker compose logs nginx
 ```
 
 **Problème : Les certificats existent mais sont invalides**
 ```bash
 # Forcer le renouvellement
-docker-compose run --rm certbot certonly \
+docker compose run --rm certbot certonly \
   --webroot \
   --webroot-path=/var/www/certbot \
   --force-renewal \
@@ -412,7 +412,7 @@ home-automation/
 │   ├── certbot/               # Let's Encrypt
 │   │   ├── conf/              # Certificats et clés
 │   │   └── www/               # Challenge ACME HTTP-01
-│   ├── docker-compose.yml     # Configuration des services
+│   ├── docker compose.yml     # Configuration des services
 │   ├── .env                   # Variables d'environnement (à créer)
 │   │
 │   ├── 🛠️ Scripts d'administration
