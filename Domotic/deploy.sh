@@ -66,7 +66,7 @@ sleep 20
 # Phase SSL
 echo "🔄 Phase 3: Configuration SSL..."
 
-# Démarrer Nginx sans SSL pour la validation Let's Encrypt
+# Démarrer Nginx pour la validation Let's Encrypt
 docker compose up -d nginx
 
 # Attendre que Nginx soit prêt
@@ -77,11 +77,12 @@ sleep 10
 echo "🔐 Obtention des certificats SSL..."
 if [ "$ENV" = "production" ]; then
     # Production - certificats réels
-    docker compose run --rm certbot certonly --webroot \
+    docker compose run --rm --entrypoint certbot certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
         --agree-tos \
         --no-eff-email \
+        --non-interactive \
         -d $DOMAIN \
         -d api.$DOMAIN \
         -d grafana.$DOMAIN \
@@ -90,12 +91,13 @@ if [ "$ENV" = "production" ]; then
         -d nextcloud.$DOMAIN
 else
     # Staging - certificats de test
-    docker compose run --rm certbot certonly --webroot \
+    docker compose run --rm --entrypoint certbot certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
         --agree-tos \
         --no-eff-email \
         --staging \
+        --non-interactive \
         -d $DOMAIN \
         -d api.$DOMAIN \
         -d grafana.$DOMAIN \
