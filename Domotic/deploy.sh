@@ -71,12 +71,27 @@ sleep 20
 # Phase SSL
 echo "🔄 Phase 3: Configuration SSL..."
 
+# Sauvegarder la config SSL et utiliser la config HTTP seulement
+echo "📝 Configuration Nginx en mode HTTP seulement..."
+if [ -f nginx/conf.d/default.conf ]; then
+    mv nginx/conf.d/default.conf nginx/conf.d/default-ssl.conf.backup
+fi
+cp nginx/conf.d/default-http-only.conf nginx/conf.d/default.conf
+
 # Démarrer Nginx pour la validation Let's Encrypt
 docker compose up -d nginx
 
 # Attendre que Nginx soit prêt
 echo "⏳ Attente de Nginx..."
 sleep 10
+
+# Vérifier que Nginx fonctionne
+if ! docker compose ps nginx | grep -q "Up"; then
+    echo "❌ Nginx n'a pas démarré correctement"
+    docker compose logs nginx
+    exit 1
+fi
+echo "✅ Nginx démarré en mode HTTP"
 
 # Obtenir les certificats SSL
 echo "🔐 Obtention des certificats SSL..."
@@ -111,9 +126,38 @@ else
         -d nextcloud.$DOMAIN
 fi
 
-# Redémarrer Nginx avec SSL
-echo "🔄 Redémarrage avec SSL..."
-docker compose restart nginx
+# Vérifier que les certificats ont été créés
+if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
+    echo "✅ Certificats SSL obtenus avec succès"
+    
+    # Créer des liens symboliques pour Nginx
+    echo "🔗 Création des liens symboliques pour Nginx..."
+    mkdir -p nginx/ssl/live/$DOMAIN
+    ln -sf /etc/letsencrypt/live/$DOMAIN/fullchain.pem nginx/ssl/live/$DOMAIN/fullchain.pem 2>/dev/null || true
+    ln -sf /etc/letsencrypt/live/$DOMAIN/privkey.pem nginx/ssl/live/$DOMAIN/privkey.pem 2>/dev/null || true
+    
+    # Restaurer la configuration SSL complète
+    echo "📝 Activation de la configuration SSL..."
+    if [ -f nginx/conf.d/default-ssl.conf.backup ]; then
+        mv nginx/conf.d/default-ssl.conf.backup nginx/conf.d/default.conf
+    fi
+    
+    # Redémarrer Nginx avec SSL
+    echo "🔄 Redémarrage de Nginx avec SSL..."
+    docker compose restart nginx
+    
+    # Vérifier que Nginx a bien redémarré
+    sleep 5
+    if ! docker compose ps nginx | grep -q "Up"; then
+        echo "❌ Nginx n'a pas redémarré correctement avec SSL"
+        docker compose logs nginx
+        exit 1
+    fi
+    echo "✅ Nginx redémarré avec SSL activé"
+else
+    echo "❌ Les certificats n'ont pas été créés"
+    echo "⚠️  Le système continue à fonctionner en HTTP seulement"
+fi
 
 # Vérification finale
 echo "🔍 Vérification des services..."
