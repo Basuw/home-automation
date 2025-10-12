@@ -71,6 +71,12 @@ sleep 20
 # Phase SSL
 echo "🔄 Phase 3: Configuration SSL..."
 
+# Renommer temporairement la config SSL pour éviter qu'elle soit chargée
+echo "📝 Préparation de la configuration Nginx..."
+if [ -f nginx/conf.d/default-paths.conf ]; then
+    mv nginx/conf.d/default-paths.conf nginx/conf.d/default-paths.conf.tmp
+fi
+
 # Créer la configuration HTTP temporaire pour Let's Encrypt
 echo "📝 Configuration Nginx en mode HTTP pour validation Let's Encrypt..."
 cat > nginx/conf.d/default.conf << 'EOF'
@@ -156,9 +162,13 @@ if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
     echo "   Tous les services seront accessibles via HTTPS avec paths"
     echo "   Exemple: https://$DOMAIN/grafana, https://$DOMAIN/api, etc."
     
-    # Activer la configuration path-based avec SSL
+    # Restaurer et activer la configuration path-based avec SSL
     echo "📝 Activation de la configuration path-based avec SSL..."
+    if [ -f nginx/conf.d/default-paths.conf.tmp ]; then
+        mv nginx/conf.d/default-paths.conf.tmp nginx/conf.d/default-paths.conf
+    fi
     cp nginx/conf.d/default-paths.conf nginx/conf.d/default.conf
+    rm -f nginx/conf.d/default-paths.conf
     
     # Redémarrer Nginx avec SSL
     echo "🔄 Redémarrage de Nginx avec SSL..."
