@@ -128,9 +128,8 @@ sleep 2
 docker compose exec nginx cat /var/www/certbot/.well-known/acme-challenge/test.txt || echo "⚠️ Problème d'accès au dossier ACME"
 
 if [ "$ENV" = "production" ]; then
-    # Production - certificats réels - SEULEMENT LE DOMAINE PRINCIPAL
-    echo "⚠️  Obtention du certificat pour le domaine principal uniquement"
-    echo "   Configurez les DNS des sous-domaines puis relancez avec tous les domaines"
+    # Production - certificat réel pour le domaine principal uniquement
+    echo "🔐 Obtention du certificat SSL pour $DOMAIN (configuration path-based)"
     docker compose run --rm --entrypoint certbot certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
@@ -139,9 +138,8 @@ if [ "$ENV" = "production" ]; then
         --non-interactive \
         -d $DOMAIN
 else
-    # Staging - certificats de test - SEULEMENT LE DOMAINE PRINCIPAL
-    echo "⚠️  Obtention du certificat pour le domaine principal uniquement"
-    echo "   Configurez les DNS des sous-domaines puis relancez avec tous les domaines"
+    # Staging - certificat de test pour le domaine principal uniquement
+    echo "🔐 Obtention du certificat SSL de test pour $DOMAIN (configuration path-based)"
     docker compose run --rm --entrypoint certbot certbot certonly --webroot \
         --webroot-path=/var/www/certbot \
         --email $EMAIL \
@@ -154,10 +152,12 @@ fi
 
 # Vérifier que les certificats ont été créés
 if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
-    echo "✅ Certificats SSL obtenus avec succès"
+    echo "✅ Certificat SSL obtenu avec succès pour $DOMAIN"
+    echo "   Tous les services seront accessibles via HTTPS avec paths"
+    echo "   Exemple: https://$DOMAIN/grafana, https://$DOMAIN/api, etc."
     
-    # Utiliser la configuration avec PATHS et SSL
-    echo "📝 Activation de la configuration SSL avec paths..."
+    # Activer la configuration path-based avec SSL
+    echo "📝 Activation de la configuration path-based avec SSL..."
     cp nginx/conf.d/default-paths.conf nginx/conf.d/default.conf
     
     # Redémarrer Nginx avec SSL
@@ -171,7 +171,7 @@ if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
         docker compose logs nginx
         exit 1
     fi
-    echo "✅ Nginx redémarré avec SSL activé"
+    echo "✅ Nginx redémarré avec SSL activé (path-based routing)"
 else
     echo "❌ Les certificats n'ont pas été créés"
     echo "⚠️  Le système continue à fonctionner en HTTP seulement"
@@ -198,13 +198,22 @@ echo "🔄 Configuration du renouvellement automatique SSL..."
 echo ""
 echo "🎉 Déploiement terminé !"
 echo ""
-echo "📋 Accès aux services (via PATHS) :"
+echo "� Configuration SSL : Certificat unique pour $DOMAIN"
+echo "🛣️  Routing : Path-based (pas de sous-domaines)"
+echo ""
+echo "�📋 Accès aux services :"
 echo "   🏠 Dashboard principal: https://$DOMAIN/"
-echo "   🔌 API Domotique: https://$DOMAIN/api"
-echo "   📊 Grafana: https://$DOMAIN/grafana"
-echo "   🗄️  PgAdmin: https://$DOMAIN/pgadmin"
-echo "   🐳 Portainer: https://$DOMAIN/portainer"
-echo "   ☁️  Nextcloud: https://$DOMAIN/nextcloud"
+echo "   🔌 API Domotique:       https://$DOMAIN/api"
+echo "   📊 Grafana:             https://$DOMAIN/grafana"
+echo "   🗄️  PgAdmin:            https://$DOMAIN/pgadmin"
+echo "   🐳 Portainer:           https://$DOMAIN/portainer"
+echo "   ☁️  Nextcloud:          https://$DOMAIN/nextcloud"
+echo ""
+echo "💡 Avantages de cette configuration :"
+echo "   • Un seul certificat SSL à gérer"
+echo "   • Pas de configuration DNS pour sous-domaines"
+echo "   • Renouvellement automatique simplifié"
+echo "   • Tous les services sous le même domaine"
 echo ""
 echo "🔧 Prochaines étapes :"
 echo "   1. Configurez vos dashboards Grafana"
@@ -212,4 +221,4 @@ echo "   2. Ajoutez votre serveur PostgreSQL dans PgAdmin"
 echo "   3. Configurez Nextcloud selon vos besoins"
 echo "   4. Testez votre API domotique"
 echo ""
-echo "📖 Consultez le README.md pour plus de détails"
+echo "📖 Consultez le README-PATHS.md pour plus de détails"
