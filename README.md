@@ -412,7 +412,7 @@ home-automation/
 │   ├── certbot/               # Let's Encrypt
 │   │   ├── conf/              # Certificats et clés
 │   │   └── www/               # Challenge ACME HTTP-01
-│   ├── docker compose.yml     # Configuration des services
+│   ├── docker-compose.yml     # Configuration des services
 │   ├── .env                   # Variables d'environnement (à créer)
 │   │
 │   ├── 🛠️ Scripts d'administration

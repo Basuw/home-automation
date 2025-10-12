@@ -210,7 +210,7 @@ docker compose logs nginx | tail -50
 Domotic/
 ├── .env                    # Configuration principale
 ├── .env.example           # Template de configuration
-├── docker compose.yml     # Orchestration des services
+├── docker-compose.yml     # Orchestration des services
 ├── docker compose.override.yml # Surcharges locales
 ├── README.md              # Documentation
 ├── api/                   # API FastAPI
