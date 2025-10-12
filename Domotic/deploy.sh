@@ -5,6 +5,11 @@
 
 set -e
 
+# Charger les variables d'environnement depuis .env
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
 # Configuration
 DOMAIN=${DOMAIN:-"yourdomain.com"}
 EMAIL=${LETSENCRYPT_EMAIL:-"admin@yourdomain.com"}
