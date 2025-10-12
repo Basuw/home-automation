@@ -6,8 +6,8 @@
 set -e
 
 # Configuration
-DOMAIN=${DOMAIN:-"jacquelin63.freeboxos.fr"}
-EMAIL=${LETSENCRYPT_EMAIL:-"admin@jacquelin63.freeboxos.fr"}
+DOMAIN=${DOMAIN:-"yourdomain.com"}
+EMAIL=${LETSENCRYPT_EMAIL:-"admin@yourdomain.com"}
 ENV=${1:-"production"}
 
 echo "🚀 Démarrage du déploiement Home Automation System"
