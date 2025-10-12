@@ -173,10 +173,10 @@ docker compose restart nginx
 #### Erreur 404 Not Found
 ```bash
 # Vérifier la configuration Nginx
-docker compose exec nginx cat /etc/nginx/conf.d/default.conf
+docker compose exec nginx cat /etc/nginx/conf.d/default-paths.conf
 
 # Vérifier que le domaine est correct
-grep "server_name" nginx/conf.d/default.conf
+grep "server_name" nginx/conf.d/default-paths.conf
 
 # Recharger Nginx
 docker compose restart nginx

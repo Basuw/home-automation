@@ -190,9 +190,8 @@ curl http://jacquelin63.freeboxos.fr/.well-known/acme-challenge/test
 # Vérifier la configuration nginx
 docker compose exec nginx nginx -t
 
-# Utiliser une config temporaire sans SSL
-mv nginx/conf.d/default.conf nginx/conf.d/default.conf.bak
-# Créer une config HTTP simple puis redémarrer
+# Redémarrer nginx
+docker compose restart nginx
 ```
 
 ### Services inaccessibles

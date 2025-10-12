@@ -40,7 +40,7 @@ Vérifie que votre configuration est correcte avant le déploiement.
 ✅ .env
 ✅ docker-compose.yml
 ✅ nginx/nginx.conf
-✅ nginx/conf.d/default.conf
+✅ nginx/conf.d/default-paths.conf
 
 🔧 Vérification des variables d'environnement...
 ✅ DOMAIN configuré

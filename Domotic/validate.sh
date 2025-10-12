@@ -13,7 +13,7 @@ required_files=(
     ".env"
     "docker-compose.yml" 
     "nginx/nginx.conf"
-    "nginx/conf.d/default.conf"
+    "nginx/conf.d/default-paths.conf"
 )
 
 for file in "${required_files[@]}"; do
@@ -54,8 +54,8 @@ done
 echo ""
 echo "🌐 Vérification de la configuration Nginx..."
 
-if grep -q "yourdomain.com" nginx/conf.d/default.conf; then
-    echo "❌ nginx/conf.d/default.conf contient encore 'yourdomain.com'"
+if grep -q "yourdomain.com" nginx/conf.d/default-paths.conf; then
+    echo "❌ nginx/conf.d/default-paths.conf contient encore 'yourdomain.com'"
     echo "   Remplacez par votre vrai domaine"
     exit 1
 else
