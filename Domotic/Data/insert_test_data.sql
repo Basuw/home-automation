@@ -27,26 +27,18 @@ BEGIN
         -- Définir les valeurs de base selon l'emplacement
         CASE sensor_id
             WHEN 1 THEN -- Salon
-                base_temp := 21.0;
-                base_humidity := 45.0;
-                base_light := 300.0;
+                SELECT 21.0, 45.0, 300.0 INTO base_temp, base_humidity, base_light;
             WHEN 2 THEN -- Chambre
-                base_temp := 19.0;
-                base_humidity := 50.0;
-                base_light := 100.0;
+                SELECT 19.0, 50.0, 100.0 INTO base_temp, base_humidity, base_light;
             WHEN 3 THEN -- Cuisine
-                base_temp := 22.0;
-                base_humidity := 55.0;
-                base_light := 400.0;
+                SELECT 22.0, 55.0, 400.0 INTO base_temp, base_humidity, base_light;
             WHEN 4 THEN -- Extérieur
-                base_temp := 15.0;
-                base_humidity := 70.0;
-                base_light := 1000.0;
+                SELECT 15.0, 70.0, 1000.0 INTO base_temp, base_humidity, base_light;
         END CASE;
         
         -- Générer des données toutes les 15 minutes sur les 7 derniers jours
-        current_time := NOW() - INTERVAL '7 days';
-        end_time := NOW();
+        SELECT NOW() - INTERVAL '7 days' INTO current_time;
+        SELECT NOW() INTO end_time;
         
         WHILE current_time <= end_time LOOP
             -- Ajouter des variations réalistes
@@ -75,7 +67,7 @@ BEGIN
             );
             
             -- Avancer de 15 minutes
-            current_time := current_time + INTERVAL '15 minutes';
+            SELECT current_time + INTERVAL '15 minutes' INTO current_time;
         END LOOP;
     END LOOP;
 END $$;
