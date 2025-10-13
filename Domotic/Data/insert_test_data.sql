@@ -16,8 +16,8 @@ INSERT INTO sensors (name, location) VALUES
 DO $$
 DECLARE
     sensor_id INT;
-    current_time TIMESTAMP;
-    end_time TIMESTAMP;
+    current_time TIMESTAMP WITHOUT TIME ZONE;
+    end_time TIMESTAMP WITHOUT TIME ZONE;
     base_temp FLOAT;
     base_humidity FLOAT;
     base_light FLOAT;
@@ -37,8 +37,8 @@ BEGIN
         END CASE;
         
         -- Générer des données toutes les 15 minutes sur les 7 derniers jours
-        SELECT (NOW() - INTERVAL '7 days')::TIMESTAMP INTO current_time;
-        SELECT NOW()::TIMESTAMP INTO end_time;
+        SELECT (NOW() - INTERVAL '7 days')::TIMESTAMP WITHOUT TIME ZONE INTO current_time;
+        SELECT NOW()::TIMESTAMP WITHOUT TIME ZONE INTO end_time;
         
         WHILE current_time <= end_time LOOP
             -- Ajouter des variations réalistes
@@ -66,8 +66,8 @@ BEGIN
                 sensor_id
             );
             
-            -- Avancer de 15 minutes
-            SELECT current_time + INTERVAL '15 minutes' INTO current_time;
+            -- Avancer de 15 minutes (avec cast explicite pour éviter les problèmes de type)
+            SELECT (current_time + INTERVAL '15 minutes')::TIMESTAMP WITHOUT TIME ZONE INTO current_time;
         END LOOP;
     END LOOP;
 END $$;

@@ -50,7 +50,9 @@ chmod -R 777 mosquitto/data mosquitto/log
 
 # Remplacement du domaine dans la config Nginx paths
 echo "🔧 Configuration Nginx pour le domaine $DOMAIN..."
-sed -i "s/jacquelin63.freeboxos.fr/$DOMAIN/g" nginx/conf.d/default-paths.conf
+# Copier le template et le modifier sans toucher à l'original
+cp nginx/conf.d/default-paths.conf nginx/conf.d/default-paths-temp.conf
+sed -i "s/jacquelin63.freeboxos.fr/$DOMAIN/g" nginx/conf.d/default-paths-temp.conf
 
 # Première phase : démarrage sans SSL
 echo "🔄 Phase 1: Démarrage des services de base..."
@@ -73,8 +75,8 @@ echo "🔄 Phase 3: Configuration SSL..."
 
 # Renommer temporairement la config SSL pour éviter qu'elle soit chargée
 echo "📝 Préparation de la configuration Nginx..."
-if [ -f nginx/conf.d/default-paths.conf ]; then
-    mv nginx/conf.d/default-paths.conf nginx/conf.d/default-paths.conf.tmp
+if [ -f nginx/conf.d/default-paths-temp.conf ]; then
+    mv nginx/conf.d/default-paths-temp.conf nginx/conf.d/default-paths-temp.conf.bak
 fi
 
 # Créer la configuration HTTP temporaire pour Let's Encrypt
@@ -164,11 +166,10 @@ if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
     
     # Restaurer et activer la configuration path-based avec SSL
     echo "📝 Activation de la configuration path-based avec SSL..."
-    if [ -f nginx/conf.d/default-paths.conf.tmp ]; then
-        mv nginx/conf.d/default-paths.conf.tmp nginx/conf.d/default-paths.conf
+    if [ -f nginx/conf.d/default-paths-temp.conf.bak ]; then
+        mv nginx/conf.d/default-paths-temp.conf.bak nginx/conf.d/default-paths-temp.conf
     fi
-    cp nginx/conf.d/default-paths.conf nginx/conf.d/default.conf
-    rm -f nginx/conf.d/default-paths.conf
+    cp nginx/conf.d/default-paths-temp.conf nginx/conf.d/default.conf
     
     # Redémarrer Nginx avec SSL
     echo "🔄 Redémarrage de Nginx avec SSL..."
