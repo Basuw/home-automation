@@ -115,7 +115,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      SCRIPT_NAME: ${SCRIPT_NAME:-/}
+      SCRIPT_NAME: /pgadmin
       TZ: ${TIMEZONE}
     expose:
       - "80"
