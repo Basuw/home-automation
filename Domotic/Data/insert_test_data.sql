@@ -37,8 +37,8 @@ BEGIN
         END CASE;
         
         -- Générer des données toutes les 15 minutes sur les 7 derniers jours
-        SELECT NOW() - INTERVAL '7 days' INTO current_time;
-        SELECT NOW() INTO end_time;
+        SELECT (NOW() - INTERVAL '7 days')::TIMESTAMP INTO current_time;
+        SELECT NOW()::TIMESTAMP INTO end_time;
         
         WHILE current_time <= end_time LOOP
             -- Ajouter des variations réalistes
