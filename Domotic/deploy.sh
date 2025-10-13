@@ -50,8 +50,10 @@ chmod -R 777 mosquitto/data mosquitto/log
 
 # Remplacement du domaine dans la config Nginx paths
 echo "🔧 Configuration Nginx pour le domaine $DOMAIN..."
-# Copier le template et le modifier sans toucher à l'original
-cp nginx/conf.d/default-paths.conf nginx/conf.d/default-paths-temp.conf
+# Nettoyer les anciens fichiers temporaires
+rm -f nginx/conf.d/default-paths-temp.conf nginx/conf.d/default-paths-temp.conf.bak nginx/conf.d/default.conf
+# Copier le template depuis le dossier templates et le modifier
+cp nginx/templates/default-paths.conf nginx/conf.d/default-paths-temp.conf
 sed -i "s/jacquelin63.freeboxos.fr/$DOMAIN/g" nginx/conf.d/default-paths-temp.conf
 
 # Première phase : démarrage sans SSL
@@ -169,7 +171,9 @@ if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
     if [ -f nginx/conf.d/default-paths-temp.conf.bak ]; then
         mv nginx/conf.d/default-paths-temp.conf.bak nginx/conf.d/default-paths-temp.conf
     fi
+    # Copier la configuration finale et nettoyer les fichiers temporaires
     cp nginx/conf.d/default-paths-temp.conf nginx/conf.d/default.conf
+    rm -f nginx/conf.d/default-paths-temp.conf nginx/conf.d/default-paths-temp.conf.bak
     
     # Redémarrer Nginx avec SSL
     echo "🔄 Redémarrage de Nginx avec SSL..."
