@@ -8,10 +8,10 @@ Tous les services sont accessibles via le domaine principal :
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| 🏠 Dashboard | `https://jacquelin63.freeboxos.fr/` | Grafana (par défaut) |
+| 🏠 Dashboard | `https://jacquelin63.freeboxos.fr/` | Page d'accueil |
 | 🔌 API | `https://jacquelin63.freeboxos.fr/api` | API domotique |
 | 📊 Grafana | `https://jacquelin63.freeboxos.fr/grafana` | Monitoring |
-| 🗄️ PgAdmin | `https://jacquelin63.freeboxos.fr/pgadmin` | Gestion PostgreSQL |
+| 🗄️ phpMyAdmin | `https://jacquelin63.freeboxos.fr/phpmyadmin` | Gestion MySQL |
 | 🐳 Portainer | `https://jacquelin63.freeboxos.fr/portainer` | Gestion containers |
 | ☁️ Nextcloud | `https://jacquelin63.freeboxos.fr/nextcloud` | Stockage cloud |
 
@@ -31,8 +31,8 @@ Ajoutez ces lignes dans votre fichier `.env` :
 GF_SERVER_ROOT_URL=https://jacquelin63.freeboxos.fr/grafana
 GF_SERVER_SERVE_FROM_SUB_PATH=true
 
-# PgAdmin avec subpath
-SCRIPT_NAME=/pgadmin
+# phpMyAdmin avec subpath
+PMA_ABSOLUTE_URI=https://jacquelin63.freeboxos.fr/phpmyadmin/
 ```
 
 ## 🚀 Déploiement
@@ -54,13 +54,14 @@ cd Domotic
 ## 📝 Notes importantes
 
 ### Grafana
-- Accessible à la racine `/` ET sur `/grafana`
+- Accessible sur `/grafana`
 - Configuré pour fonctionner avec un sub-path
 - Les dashboards et plugins fonctionnent normalement
 
-### PgAdmin
-- Nécessite la variable `SCRIPT_NAME=/pgadmin`
-- Peut nécessiter une première connexion pour configurer le serveur PostgreSQL
+### phpMyAdmin
+- Nécessite la variable `PMA_ABSOLUTE_URI`
+- Se connecte automatiquement à la base MySQL de Nextcloud
+- Utilisateur root avec accès complet
 
 ### Portainer
 - Premier accès : création du compte admin

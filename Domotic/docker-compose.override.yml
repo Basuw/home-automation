@@ -19,7 +19,7 @@ services:
     ports:
       - "3000:3000"
   
-  pgadmin:
+  phpmyadmin:
     ports:
       - "9098:80"
   

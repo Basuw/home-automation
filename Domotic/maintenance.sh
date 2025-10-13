@@ -120,7 +120,7 @@ case $ACTION in
         # Test des services web
         echo "🌐 Test des services web:"
         DOMAIN=$(grep DOMAIN .env | cut -d'=' -f2)
-        services=("api" "grafana" "pgadmin" "portainer" "nextcloud")
+        services=("api" "grafana" "phpmyadmin" "portainer" "nextcloud")
         
         for service in "${services[@]}"; do
             if curl -sf "https://$service.$DOMAIN" > /dev/null 2>&1; then

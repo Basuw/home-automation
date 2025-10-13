@@ -32,7 +32,6 @@ echo "🔧 Vérification des variables d'environnement..."
 required_vars=(
     "DOMAIN"
     "POSTGRES_PASSWORD"
-    "PGADMIN_DEFAULT_PASSWORD"
     "GF_SECURITY_ADMIN_PASSWORD"
     "NEXTCLOUD_ADMIN_PASSWORD"
     "MYSQL_ROOT_PASSWORD"

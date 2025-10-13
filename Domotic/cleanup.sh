@@ -15,7 +15,7 @@ rm -f nginx/conf.d/default-paths-temp.conf nginx/conf.d/default-paths-temp.conf.
 
 # Supprimer les conteneurs avec les mêmes noms si ils existent encore
 echo "🗑️ Suppression des conteneurs orphelins..."
-containers=("mosquitto" "api" "listenner" "db" "pgadmin" "grafana" "portainer" "nextcloud" "nextcloud-db" "nginx" "certbot")
+containers=("mosquitto" "api" "listenner" "db" "phpmyadmin" "grafana" "portainer" "nextcloud" "nextcloud-db" "nginx" "certbot")
 
 for container in "${containers[@]}"; do
     if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then

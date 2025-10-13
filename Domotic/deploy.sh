@@ -66,7 +66,7 @@ sleep 30
 
 # Démarrage des autres services
 echo "🔄 Phase 2: Démarrage des services applicatifs..."
-docker compose up -d api listener mosquitto pgadmin grafana portainer nextcloud
+docker compose up -d api listener mosquitto phpmyadmin grafana portainer nextcloud
 
 # Attendre que les services soient prêts
 echo "⏳ Attente des services..."
@@ -197,7 +197,7 @@ echo "🔍 Vérification des services..."
 sleep 10
 
 # Test des services (via paths)
-services=("api" "grafana" "pgadmin" "portainer" "nextcloud")
+services=("api" "grafana" "phpmyadmin" "portainer" "nextcloud")
 for service in "${services[@]}"; do
     if curl -sf "https://$DOMAIN/$service" > /dev/null; then
         echo "✅ https://$DOMAIN/$service - OK"
@@ -220,7 +220,7 @@ echo "�📋 Accès aux services :"
 echo "   🏠 Dashboard principal: https://$DOMAIN/"
 echo "   🔌 API Domotique:       https://$DOMAIN/api"
 echo "   📊 Grafana:             https://$DOMAIN/grafana"
-echo "   🗄️  PgAdmin:            https://$DOMAIN/pgadmin"
+echo "   🗄️  phpMyAdmin:         https://$DOMAIN/phpmyadmin"
 echo "   🐳 Portainer:           https://$DOMAIN/portainer"
 echo "   ☁️  Nextcloud:          https://$DOMAIN/nextcloud"
 echo ""
@@ -269,7 +269,7 @@ if [ "$ENV" = "staging" ]; then
     echo "   4. Vérifiez tous les services"
 else
     echo "   1. Configurez vos dashboards Grafana"
-    echo "   2. Ajoutez votre serveur PostgreSQL dans PgAdmin"
+    echo "   2. Gérez vos bases de données avec phpMyAdmin"
     echo "   3. Configurez Nextcloud selon vos besoins"
     echo "   4. Testez votre API domotique"
 fi

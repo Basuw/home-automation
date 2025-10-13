@@ -9,19 +9,19 @@ Système complet de domotique avec surveillance, gestion de données et interfac
 - **Base de données PostgreSQL** : Stockage des données
 - **MQTT Mosquitto** : Messagerie IoT
 - **Grafana** : Visualisation et monitoring
-- **PgAdmin** : Gestion base de données
+- **phpMyAdmin** : Gestion base de données MySQL
 - **Portainer** : Gestion conteneurs Docker
 - **Nextcloud** : Stockage et partage de fichiers
 - **Nginx** : Reverse proxy avec SSL Let's Encrypt
 
 ## 🌐 URLs des services
 
-- **Principal (Grafana)** : https://jacquelin63.freeboxos.fr
-- **API** : https://api.jacquelin63.freeboxos.fr
-- **Grafana** : https://grafana.jacquelin63.freeboxos.fr
-- **PgAdmin** : https://pgadmin.jacquelin63.freeboxos.fr
-- **Portainer** : https://portainer.jacquelin63.freeboxos.fr
-- **Nextcloud** : https://nextcloud.jacquelin63.freeboxos.fr
+- **Principal** : https://jacquelin63.freeboxos.fr
+- **API** : https://jacquelin63.freeboxos.fr/api
+- **Grafana** : https://jacquelin63.freeboxos.fr/grafana
+- **phpMyAdmin** : https://jacquelin63.freeboxos.fr/phpmyadmin
+- **Portainer** : https://jacquelin63.freeboxos.fr/portainer
+- **Nextcloud** : https://jacquelin63.freeboxos.fr/nextcloud
 
 ## 📋 Prérequis
 
@@ -89,7 +89,7 @@ sleep 30
 docker compose up -d api listener
 
 # 4. Services web
-docker compose up -d grafana pgadmin portainer nextcloud-db
+docker compose up -d grafana phpmyadmin portainer nextcloud-db
 sleep 30
 docker compose up -d nextcloud
 

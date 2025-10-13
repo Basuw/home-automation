@@ -17,7 +17,7 @@ services:
     depends_on:
       - api
       - grafana
-      - pgadmin
+      - phpmyadmin
       - portainer
       - nextcloud
     networks:
@@ -108,21 +108,22 @@ services:
     networks:
       - domotic-net
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      SCRIPT_NAME: /pgadmin
+      PMA_HOST: nextcloud-db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_ABSOLUTE_URI: https://${DOMAIN}/phpmyadmin/
+      UPLOAD_LIMIT: 100M
       TZ: ${TIMEZONE}
     expose:
       - "80"
     depends_on:
-      - db
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - nextcloud-db
     networks:
       - domotic-net
 
@@ -194,6 +195,7 @@ services:
       NEXTCLOUD_TRUSTED_DOMAINS: ${NEXTCLOUD_TRUSTED_DOMAINS}
       OVERWRITEHOST: ${DOMAIN}
       OVERWRITEPROTOCOL: https
+      OVERWRITEWEBROOT: /nextcloud
       APACHE_DISABLE_REWRITE_IP: 1
       TRUSTED_PROXIES: nginx
       TZ: ${TIMEZONE}
@@ -207,7 +209,6 @@ services:
 volumes:
   portainer_data:
   postgres_data:
-  pgadmin_data:
   grafana_data:
   nextcloud_data:
   nextcloud_db:
