@@ -225,10 +225,41 @@ echo "   • Pas de configuration DNS pour sous-domaines"
 echo "   • Renouvellement automatique simplifié"
 echo "   • Tous les services sous le même domaine"
 echo ""
+# Configuration automatique selon l'environnement
+if [ "$ENV" = "staging" ]; then
+    echo ""
+    echo "🧪 Configuration automatique de l'environnement STAGING..."
+    echo ""
+    
+    # Insertion des données de test
+    echo "📊 Insertion des données de test..."
+    if [ -f insert-test-data.sh ]; then
+        chmod +x insert-test-data.sh
+        ./insert-test-data.sh staging
+    else
+        echo "⚠️  Script insert-test-data.sh non trouvé"
+    fi
+    
+    echo ""
+    
+    # Configuration de Grafana
+    echo "📈 Configuration de Grafana..."
+    if [ -f setup-grafana.sh ]; then
+        chmod +x setup-grafana.sh
+        ./setup-grafana.sh
+    else
+        echo "⚠️  Script setup-grafana.sh non trouvé"
+    fi
+    
+    echo ""
+    echo "✅ Configuration STAGING terminée !"
+fi
+
+echo ""
 echo "🔧 Prochaines étapes :"
 if [ "$ENV" = "staging" ]; then
-    echo "   1. Insérez des données de test: ./insert-test-data.sh staging"
-    echo "   2. Configurez Grafana: ./setup-grafana.sh"
+    echo "   1. ✅ Données de test insérées"
+    echo "   2. ✅ Grafana configuré"
     echo "   3. Testez votre API domotique"
     echo "   4. Vérifiez tous les services"
 else
