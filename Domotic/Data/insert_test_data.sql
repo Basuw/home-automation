@@ -70,7 +70,8 @@ BEGIN
                         base_light + (RANDOM() * 200.0)  -- Jour
                     ELSE
                         base_light * 0.05 + (RANDOM() * 10.0)  -- Nuit
-                END
+                END,
+                sensor_id
             );
             
             -- Avancer de 15 minutes

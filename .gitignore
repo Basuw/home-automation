@@ -1,3 +1,19 @@
+# Fichiers de certificats SSL
+*.pem
+Domotic/certbot/conf/
+Domotic/certbot/ssl/
+
+# Fichiers de configuration sensibles
+Domotic/mosquitto/config/pwfile
+
+# Données et logs
+Domotic/mosquitto/data/
+Domotic/mosquitto/log/
+
+# Fichiers de l'éditeur/IDE
+.vscode/
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
