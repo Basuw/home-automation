@@ -65,8 +65,7 @@ else
     echo "📍 Domaine: $DOMAIN"
     
     echo "🔧 Configuration Nginx..."
-    envsubst '${DOMAIN}' < nginx/conf.d/default.conf > nginx/conf.d/default-tmp.conf
-    mv nginx/conf.d/default-tmp.conf nginx/conf.d/default.conf
+    envsubst '${DOMAIN}' < nginx/conf.d/default.conf.template > nginx/conf.d/default.conf
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose up -d db nextcloud-db
