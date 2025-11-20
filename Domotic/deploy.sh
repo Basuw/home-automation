@@ -6,12 +6,29 @@ if [ -f .env ]; then
     export $(cat .env | grep -v '^#' | xargs)
 fi
 
+if [ -f subdomains.env ]; then
+    export $(cat subdomains.env | grep -v '^#' | xargs)
+fi
+
 DOMAIN=${DOMAIN:-"yourdomain.com"}
 EMAIL=${LETSENCRYPT_EMAIL:-"admin@yourdomain.com"}
 ENV=${1:-"production"}
 
+SUBDOMAIN_API=${SUBDOMAIN_API:-"api"}
+SUBDOMAIN_GRAFANA=${SUBDOMAIN_GRAFANA:-"grafana"}
+SUBDOMAIN_PHPMYADMIN=${SUBDOMAIN_PHPMYADMIN:-"phpmyadmin"}
+SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
+SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
+
 echo "🚀 Déploiement Home Automation"
 echo "🏷️  Environnement: $ENV"
+echo "🌐 Domaine principal: $DOMAIN"
+echo "📡 Sous-domaines:"
+echo "   - API:        ${SUBDOMAIN_API}.${DOMAIN}"
+echo "   - Grafana:    ${SUBDOMAIN_GRAFANA}.${DOMAIN}"
+echo "   - phpMyAdmin: ${SUBDOMAIN_PHPMYADMIN}.${DOMAIN}"
+echo "   - Portainer:  ${SUBDOMAIN_PORTAINER}.${DOMAIN}"
+echo "   - Cloud:      ${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}"
 
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker non installé"
@@ -44,14 +61,8 @@ if [ "$ENV" = "dev" ]; then
         echo "✅ Certificat auto-signé déjà présent"
     fi
     
-    echo "🔧 Configuration Nginx..."
-    envsubst '${DOMAIN}' < nginx/conf.d/default.conf.template > nginx/conf.d/default-dev-tmp.conf
-    sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/fullchain.pem|/etc/nginx/ssl/selfsigned.crt|g' nginx/conf.d/default-dev-tmp.conf
-    sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/privkey.pem|/etc/nginx/ssl/selfsigned.key|g' nginx/conf.d/default-dev-tmp.conf
-    sed -i.bak "s/server_name ${DOMAIN};/server_name localhost;/g" nginx/conf.d/default-dev-tmp.conf
-    mv nginx/conf.d/default-dev-tmp.conf nginx/conf.d/default.conf
-    rm -f nginx/conf.d/default-dev-tmp.conf.bak
-    rm -f nginx/conf.d/default-dev.conf
+    echo "🔧 Génération configuration Nginx pour DEV..."
+    bash ./generate-nginx-config.sh dev
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db nextcloud-db
@@ -74,20 +85,25 @@ if [ "$ENV" = "dev" ]; then
     echo ""
     echo "🎉 Déploiement DEV terminé !"
     echo ""
-    echo "📋 Services disponibles sur https://localhost (certificat auto-signé) :"
-    echo "   https://localhost/api"
-    echo "   https://localhost/grafana"
-    echo "   https://localhost/phpmyadmin"
-    echo "   https://localhost/portainer"
-    echo "   https://localhost/nextcloud"
+    echo "📋 Services disponibles (certificat auto-signé) :"
+    echo "   https://${SUBDOMAIN_API}.localhost"
+    echo "   https://${SUBDOMAIN_GRAFANA}.localhost"
+    echo "   https://${SUBDOMAIN_PHPMYADMIN}.localhost"
+    echo "   https://${SUBDOMAIN_PORTAINER}.localhost"
+    echo "   https://${SUBDOMAIN_NEXTCLOUD}.localhost"
     echo ""
-    echo "⚠️  Votre navigateur affichera un avertissement de sécurité (certificat auto-signé)"
+    echo "⚠️  Ajoutez ces lignes à /etc/hosts :"
+    echo "   127.0.0.1 ${SUBDOMAIN_API}.localhost"
+    echo "   127.0.0.1 ${SUBDOMAIN_GRAFANA}.localhost"
+    echo "   127.0.0.1 ${SUBDOMAIN_PHPMYADMIN}.localhost"
+    echo "   127.0.0.1 ${SUBDOMAIN_PORTAINER}.localhost"
+    echo "   127.0.0.1 ${SUBDOMAIN_NEXTCLOUD}.localhost"
     
 else
     echo "📍 Domaine: $DOMAIN"
     
-    echo "🔧 Configuration Nginx..."
-    envsubst '${DOMAIN}' < nginx/conf.d/default.conf.template > nginx/conf.d/default.conf
+    echo "🔧 Génération configuration Nginx..."
+    bash ./generate-nginx-config.sh production
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose up -d db nextcloud-db
@@ -97,7 +113,7 @@ else
     docker compose up -d api listener mosquitto phpmyadmin grafana portainer nextcloud
     sleep 20
     
-    echo "🔄 Phase 3: SSL..."
+    echo "🔄 Phase 3: SSL Setup - Nginx HTTP temporaire..."
     cat > nginx/conf.d/default-http.conf << 'EOF'
 server {
     listen 80;
@@ -124,8 +140,10 @@ EOF
         exit 1
     fi
     
-    echo "🔐 Obtention certificat SSL..."
+    echo "🔐 Obtention certificats SSL pour tous les sous-domaines..."
     mkdir -p certbot/www/.well-known/acme-challenge
+    
+    SUBDOMAINS="${SUBDOMAIN_API}.${DOMAIN},${SUBDOMAIN_GRAFANA}.${DOMAIN},${SUBDOMAIN_PHPMYADMIN}.${DOMAIN},${SUBDOMAIN_PORTAINER}.${DOMAIN},${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}"
     
     if [ "$ENV" = "production" ]; then
         docker compose run --rm --entrypoint certbot certbot certonly --webroot \
@@ -134,7 +152,8 @@ EOF
             --agree-tos \
             --no-eff-email \
             --non-interactive \
-            -d $DOMAIN
+            -d $DOMAIN \
+            -d $SUBDOMAINS
     else
         docker compose run --rm --entrypoint certbot certbot certonly --webroot \
             --webroot-path=/var/www/certbot \
@@ -143,11 +162,12 @@ EOF
             --no-eff-email \
             --staging \
             --non-interactive \
-            -d $DOMAIN
+            -d $DOMAIN \
+            -d $SUBDOMAINS
     fi
     
     if [ -f "certbot/conf/live/$DOMAIN/fullchain.pem" ]; then
-        echo "✅ Certificat obtenu"
+        echo "✅ Certificats obtenus pour $DOMAIN et tous les sous-domaines"
         
         rm -f nginx/conf.d/default-http.conf
         mv nginx/conf.d/default.conf.bak nginx/conf.d/default.conf
@@ -163,6 +183,14 @@ EOF
         echo "✅ Nginx avec SSL activé"
     else
         echo "❌ Certificats non créés"
+        echo "Vérifiez que les DNS pointent vers ce serveur :"
+        echo "  - $DOMAIN"
+        echo "  - ${SUBDOMAIN_API}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_GRAFANA}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_PHPMYADMIN}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_PORTAINER}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_NEXTCLOUD}.$DOMAIN"
+        exit 1
     fi
     
     echo "🔄 Renouvellement automatique SSL..."
@@ -171,10 +199,13 @@ EOF
     echo ""
     echo "🎉 Déploiement terminé !"
     echo ""
-    echo "📋 Services :"
-    echo "   https://$DOMAIN/api"
-    echo "   https://$DOMAIN/grafana"
-    echo "   https://$DOMAIN/phpmyadmin"
-    echo "   https://$DOMAIN/portainer"
-    echo "   https://$DOMAIN/nextcloud"
+    echo "📋 Services disponibles :"
+    echo "   🌐 Page principale: https://$DOMAIN"
+    echo "   🔌 API:            https://${SUBDOMAIN_API}.$DOMAIN"
+    echo "   📊 Grafana:        https://${SUBDOMAIN_GRAFANA}.$DOMAIN"
+    echo "   🗄️  phpMyAdmin:    https://${SUBDOMAIN_PHPMYADMIN}.$DOMAIN"
+    echo "   🐳 Portainer:      https://${SUBDOMAIN_PORTAINER}.$DOMAIN"
+    echo "   ☁️  Cloud:          https://${SUBDOMAIN_NEXTCLOUD}.$DOMAIN"
+    echo ""
+    echo "✅ SSL Let's Encrypt configuré pour tous les domaines"
 fi
