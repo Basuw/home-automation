@@ -188,3 +188,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+default-dev.conf
+default-dev.template
+selfsigned.crt
+selfsigned.key
