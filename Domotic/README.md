@@ -16,12 +16,14 @@ Système complet de domotique avec surveillance, gestion de données et interfac
 
 ## 🌐 URLs des services
 
-- **Principal** : https://jacquelin63.freeboxos.fr
-- **API** : https://jacquelin63.freeboxos.fr/api
-- **Grafana** : https://jacquelin63.freeboxos.fr/grafana
-- **phpMyAdmin** : https://jacquelin63.freeboxos.fr/phpmyadmin
-- **Portainer** : https://jacquelin63.freeboxos.fr/portainer
-- **Nextcloud** : https://jacquelin63.freeboxos.fr/nextcloud
+Tous les services sont accessibles via votre domaine (configuré dans `.env`) :
+
+- **Principal** : https://your-domain.com
+- **API** : https://your-domain.com/api
+- **Grafana** : https://your-domain.com/grafana
+- **phpMyAdmin** : https://your-domain.com/phpmyadmin
+- **Portainer** : https://your-domain.com/portainer
+- **Nextcloud** : https://your-domain.com/nextcloud
 
 ## 📋 Prérequis
 
@@ -29,161 +31,102 @@ Système complet de domotique avec surveillance, gestion de données et interfac
 - Nom de domaine configuré (DNS pointant vers votre serveur)
 - Ports ouverts : 80, 443, 1883, 9001
 
-## 🚀 Installation et démarrage
+## 🚀 Démarrage rapide
 
-### 1. Configuration initiale
+### 1. Configuration
 
 ```bash
-# Cloner le projet (si nécessaire)
-git clone <votre-repo>
-cd Domotic
-
 # Copier et modifier la configuration
 cp .env.example .env
 # Éditer .env avec vos valeurs (domaine, mots de passe, email)
-
-# Créer les répertoires nécessaires
-mkdir -p nginx/ssl
-mkdir -p certbot/conf
-mkdir -p certbot/www
 ```
 
-### 2. Configuration du fichier .env
-
-Modifiez `.env` avec vos vraies valeurs :
-- Remplacez `yourdomain.com` par votre domaine
-- Changez TOUS les mots de passe par des valeurs sécurisées
-- Configurez votre email pour Let's Encrypt
-
-### 3. Première génération des certificats SSL
+### 2. Déploiement automatique
 
 ```bash
-# Démarrer certbot pour obtenir les certificats
-docker compose up -d certbot
-
-# Obtenir les certificats SSL
-docker compose exec certbot certbot certonly \
-  --webroot \
-  --webroot-path /var/www/certbot \
-  --email votre-email@example.com \
-  --agree-tos \
-  --no-eff-email \
-  -d jacquelin63.freeboxos.fr \
-  -d api.jacquelin63.freeboxos.fr \
-  -d grafana.jacquelin63.freeboxos.fr \
-  -d pgladmin.jacquelin63.freeboxos.fr \
-  -d portainer.jacquelin63.freeboxos.fr \
-  -d nextcloud.jacquelin63.freeboxos.fr
+# Lancer le script de déploiement
+./deploy.sh
 ```
 
-### 4. Démarrage des services (ordre recommandé)
+Le script `deploy.sh` :
+- Configure automatiquement nginx avec votre domaine
+- Démarre les services dans le bon ordre
+- Obtient les certificats SSL Let's Encrypt
+- Configure le renouvellement automatique SSL
+
+### 3. Démarrage manuel (optionnel)
+
+Si vous préférez contrôler chaque étape :
 
 ```bash
 # 1. Services de base (bases de données)
 docker compose up -d db mosquitto
 
-# 2. Attendre que les DB soient prêtes
-sleep 30
-
-# 3. Services métier
+# 2. Services métier
 docker compose up -d api listener
 
-# 4. Services web
-docker compose up -d grafana phpmyadmin portainer nextcloud-db
-sleep 30
-docker compose up -d nextcloud
+# 3. Services web
+docker compose up -d grafana phpmyadmin portainer nextcloud-db nextcloud
 
-# 5. Nginx avec SSL
+# 4. Nginx
 docker compose up -d nginx
 ```
 
-### 5. Démarrage complet (si certificats déjà présents)
+## 🔧 Maintenance
+
+Utilisez le script `maintenance.sh` pour les opérations courantes :
 
 ```bash
-# Si tout est déjà configuré
-docker compose up -d
+./maintenance.sh backup   # Sauvegarde les bases de données
+./maintenance.sh restore  # Restaure depuis une sauvegarde
+./maintenance.sh logs     # Affiche les logs de tous les services
+./maintenance.sh status   # État de tous les conteneurs
 ```
 
-## 🔄 Gestion des certificats SSL
+## 📁 Structure du projet
 
-### Renouvellement automatique
-
-Créer un script `renew_ssl.sh` :
-```bash
-#!/bin/bash
-docker compose exec certbot certbot renew --quiet
-docker compose restart nginx
+```
+Domotic/
+├── .env                    # Configuration principale
+├── .env.example           # Template de configuration
+├── docker-compose.yml     # Orchestration des services
+├── docker-compose.override.yml # Surcharges locales
+├── README.md              # Documentation
+├── deploy.sh              # Script de déploiement
+├── maintenance.sh         # Script de maintenance
+├── api/                   # API FastAPI
+├── services/              # Service listener MQTT
+├── Data/                  # Scripts SQL d'initialisation
+├── nginx/                 # Configuration reverse proxy
+│   ├── conf.d/default.conf  # Configuration des routes
+│   └── nginx.conf         # Configuration principale
+├── certbot/               # Let's Encrypt
+│   └── www/               # Challenge ACME
+├── mosquitto/             # Configuration MQTT
+└── grafana/               # Dashboards Grafana
 ```
 
-### Configuration cron (Linux/Mac)
-```bash
-# Ajouter à crontab pour renouvellement automatique
-0 2 * * 1 /chemin/vers/renew_ssl.sh
-```
+## 🔍 Commandes utiles
 
-## 🔍 Vérification et maintenance
-
-### Vérifier l'état des services
 ```bash
 # Status des conteneurs
 docker compose ps
 
-# Logs des services
-docker compose logs nginx
-docker compose logs certbot
-docker compose logs api
-docker compose logs listener
-```
+# Logs d'un service
+docker compose logs <service>
+docker compose logs -f nginx  # Suivre les logs en temps réel
 
-### Tester les certificats
-```bash
-# Lister les certificats
-docker compose exec certbot certbot certificates
+# Redémarrer un service
+docker compose restart <service>
 
-# Vérifier l'expiration
-openssl x509 -in nginx/ssl/live/jacquelin63.freeboxos.fr/cert.pem -text -noout | grep "Not After"
-```
-
-## 🛠️ Scripts utiles
-
-### Maintenance générale
-```bash
-# Utiliser le script de maintenance
-./maintenance.sh
-```
-
-### Nettoyage complet
-```bash
 # Arrêter tous les services
-docker compose down -v
+docker compose down
 
-# Nettoyer les volumes (ATTENTION : supprime toutes les données)
-docker volume prune
-
-# Nettoyer les certificats
-rm -rf certbot/conf/*
-rm -rf nginx/ssl/*
-```
-
-### Validation de la configuration
-```bash
-# Valider la configuration
-./validate.sh
+# Démarrer tous les services
+docker compose up -d
 ```
 
 ## ⚠️ Problèmes courants
-
-### Les certificats ne se génèrent pas
-```bash
-# Vérifier les logs certbot
-docker compose logs certbot
-
-# Vérifier la configuration DNS
-nslookup jacquelin63.freeboxos.fr
-
-# Test manuel du challenge ACME
-curl http://jacquelin63.freeboxos.fr/.well-known/acme-challenge/test
-```
 
 ### Nginx ne démarre pas
 ```bash
@@ -196,45 +139,24 @@ docker compose restart nginx
 
 ### Services inaccessibles
 ```bash
-# Vérifier les ports ouverts
-netstat -tlnp | grep -E ':(80|443|1883|9001)'
-
 # Vérifier les logs du reverse proxy
-docker compose logs nginx | tail -50
+docker compose logs nginx
+
+# Vérifier que les certificats SSL existent
+ls -la certbot/conf/live/
 ```
 
-## 📁 Structure du projet
-
-```
-Domotic/
-├── .env                    # Configuration principale
-├── .env.example           # Template de configuration
-├── docker-compose.yml     # Orchestration des services
-├── docker compose.override.yml # Surcharges locales
-├── README.md              # Documentation
-├── api/                   # API FastAPI
-├── services/              # Service listener MQTT
-├── Data/                  # Scripts SQL d'initialisation
-├── nginx/                 # Configuration reverse proxy
-│   ├── conf.d/           # Configuration sites
-│   ├── nginx.conf        # Configuration principale
-│   └── ssl/              # Certificats SSL (généré)
-├── certbot/              # Let's Encrypt
-│   ├── conf/            # Configuration certbot
-│   └── www/             # Challenge ACME
-├── mosquitto/           # Configuration MQTT
-│   ├── config/         # Fichiers de config
-│   └── data/           # Données persistantes
-├── cleanup.sh          # Script de nettoyage
-├── deploy.sh           # Script de déploiement
-├── maintenance.sh      # Script de maintenance
-└── validate.sh         # Script de validation
+### Certificats SSL expirés
+Les certificats sont renouvelés automatiquement via cron.
+Pour forcer un renouvellement manuel :
+```bash
+docker compose exec certbot certbot renew
+docker compose restart nginx
 ```
 
 ## 🔒 Sécurité
 
 - Tous les services utilisent HTTPS avec certificats Let's Encrypt
-- Rate limiting configuré sur nginx
 - Mots de passe sécurisés requis pour tous les services
 - Réseau Docker isolé pour les communications internes
 - Volumes persistants pour les données critiques
@@ -242,8 +164,8 @@ Domotic/
 ## 📞 Support
 
 - Vérifiez les logs avec `docker compose logs <service>`
-- Consultez la documentation des services individuels
-- Utilisez les scripts de maintenance fournis
+- Utilisez `./maintenance.sh status` pour voir l'état des services
+- Consultez `.env.example` pour les variables de configuration
 
 ## 🔄 Mises à jour
 
