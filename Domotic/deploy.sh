@@ -31,7 +31,26 @@ chmod -R 755 nginx/ certbot/
 chmod -R 777 mosquitto/data mosquitto/log
 
 if [ "$ENV" = "dev" ]; then
-    echo "🔧 Mode DEV: Sans SSL"
+    echo "🔧 Mode DEV: Certificat auto-signé"
+    
+    echo "🔐 Génération certificat auto-signé..."
+    if [ ! -f "nginx/ssl/selfsigned.crt" ]; then
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+            -keyout nginx/ssl/selfsigned.key \
+            -out nginx/ssl/selfsigned.crt \
+            -subj "/C=FR/ST=France/L=Paris/O=Dev/CN=localhost"
+        echo "✅ Certificat auto-signé créé"
+    else
+        echo "✅ Certificat auto-signé déjà présent"
+    fi
+    
+    echo "🔧 Configuration Nginx..."
+    envsubst '${DOMAIN}' < nginx/conf.d/default.conf.template > nginx/conf.d/default-dev-tmp.conf
+    sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/fullchain.pem|/etc/nginx/ssl/selfsigned.crt|g' nginx/conf.d/default-dev-tmp.conf
+    sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/privkey.pem|/etc/nginx/ssl/selfsigned.key|g' nginx/conf.d/default-dev-tmp.conf
+    sed -i.bak "s/server_name ${DOMAIN};/server_name localhost;/g" nginx/conf.d/default-dev-tmp.conf
+    mv nginx/conf.d/default-dev-tmp.conf nginx/conf.d/default-dev.conf
+    rm -f nginx/conf.d/default-dev-tmp.conf.bak
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db nextcloud-db
@@ -54,12 +73,14 @@ if [ "$ENV" = "dev" ]; then
     echo ""
     echo "🎉 Déploiement DEV terminé !"
     echo ""
-    echo "📋 Services disponibles sur http://localhost :"
-    echo "   http://localhost/api"
-    echo "   http://localhost/grafana"
-    echo "   http://localhost/phpmyadmin"
-    echo "   http://localhost/portainer"
-    echo "   http://localhost/nextcloud"
+    echo "📋 Services disponibles sur https://localhost (certificat auto-signé) :"
+    echo "   https://localhost/api"
+    echo "   https://localhost/grafana"
+    echo "   https://localhost/phpmyadmin"
+    echo "   https://localhost/portainer"
+    echo "   https://localhost/nextcloud"
+    echo ""
+    echo "⚠️  Votre navigateur affichera un avertissement de sécurité (certificat auto-signé)"
     
 else
     echo "📍 Domaine: $DOMAIN"
