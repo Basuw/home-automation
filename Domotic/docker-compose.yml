@@ -22,6 +22,7 @@ services:
       - nextcloud
     networks:
       - domotic-net
+      - shared-network
 
   # Let's Encrypt SSL Certificate Manager
   certbot:
@@ -216,3 +217,5 @@ volumes:
 networks:
   domotic-net:
     driver: bridge
+  shared-network:
+    external: true

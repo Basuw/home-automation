@@ -8,11 +8,18 @@ Tous les services sont accessibles via le domaine principal :
 
 | Service | URL | Description |
 |---------|-----|-------------|
-ù!ù^9*=9=9| 🔌 API | `https://jacquelin63.freeboxos.fr/api` | API domotique |
+| 🔌 API | `https://jacquelin63.freeboxos.fr/api` | API domotique |
 | 📊 Grafana | `https://jacquelin63.freeboxos.fr/grafana` | Monitoring |
 | 🗄️ phpMyAdmin | `https://jacquelin63.freeboxos.fr/phpmyadmin` | Gestion MySQL |
 | 🐳 Portainer | `https://jacquelin63.freeboxos.fr/portainer` | Gestion containers |
 | ☁️ Nextcloud | `https://jacquelin63.freeboxos.fr/nextcloud` | Stockage cloud |
+
+### Applications externes
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| 🚗 La 4L des Dômes | `https://la4ldesdomes.bastien-jacquelin.fr` | Application fourltrop |
+| 💰 Capitalot | `https://capitalot.bastien-jacquelin.fr` | Application capitalot |
 
 ## ✅ Avantages de cette configuration
 

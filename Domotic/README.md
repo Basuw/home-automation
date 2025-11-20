@@ -16,14 +16,18 @@ Système complet de domotique avec surveillance, gestion de données et interfac
 
 ## 🌐 URLs des services
 
-Tous les services sont accessibles via votre domaine (configuré dans `.env`) :
+Tous les services sont accessibles via des sous-domaines (configurés dans `.env`) :
 
-- **Principal** : https://your-domain.com
-- **API** : https://your-domain.com/api
-- **Grafana** : https://your-domain.com/grafana
-- **phpMyAdmin** : https://your-domain.com/phpmyadmin
-- **Portainer** : https://your-domain.com/portainer
-- **Nextcloud** : https://your-domain.com/nextcloud
+- **API** : https://${SUBDOMAIN_API}.${DOMAIN}
+- **Grafana** : https://${SUBDOMAIN_GRAFANA}.${DOMAIN}
+- **phpMyAdmin** : https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN}
+- **Portainer** : https://${SUBDOMAIN_PORTAINER}.${DOMAIN}
+- **Nextcloud** : https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}
+
+### Applications externes
+
+- **La 4L des Dômes** : https://${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN}
+- **Capitalot** : https://${SUBDOMAIN_CAPITALOT}.${DOMAIN}
 
 ## 📋 Prérequis
 
