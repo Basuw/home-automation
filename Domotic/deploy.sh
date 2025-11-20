@@ -49,8 +49,9 @@ if [ "$ENV" = "dev" ]; then
     sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/fullchain.pem|/etc/nginx/ssl/selfsigned.crt|g' nginx/conf.d/default-dev-tmp.conf
     sed -i.bak 's|/etc/letsencrypt/live/${DOMAIN}/privkey.pem|/etc/nginx/ssl/selfsigned.key|g' nginx/conf.d/default-dev-tmp.conf
     sed -i.bak "s/server_name ${DOMAIN};/server_name localhost;/g" nginx/conf.d/default-dev-tmp.conf
-    mv nginx/conf.d/default-dev-tmp.conf nginx/conf.d/default-dev.conf
+    mv nginx/conf.d/default-dev-tmp.conf nginx/conf.d/default.conf
     rm -f nginx/conf.d/default-dev-tmp.conf.bak
+    rm -f nginx/conf.d/default-dev.conf
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db nextcloud-db
