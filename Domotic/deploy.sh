@@ -3,11 +3,15 @@
 set -e
 
 if [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    set -a
+    source <(grep -v '^#' .env | grep -v '^\s*$' | sed 's/^\([^=]*\)=\(.*\)$/\1="\2"/')
+    set +a
 fi
 
 if [ -f subdomains.env ]; then
-    export $(cat subdomains.env | grep -v '^#' | xargs)
+    set -a
+    source <(grep -v '^#' subdomains.env | grep -v '^\s*$' | sed 's/^\([^=]*\)=\(.*\)$/\1="\2"/')
+    set +a
 fi
 
 DOMAIN=${DOMAIN:-"yourdomain.com"}
