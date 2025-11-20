@@ -66,7 +66,12 @@ if [ "$ENV" = "dev" ]; then
     fi
     
     echo "🔧 Génération configuration Nginx pour DEV..."
+    rm -f nginx/conf.d/default.conf nginx/conf.d/default.conf.bak nginx/conf.d/default-dev.conf
     bash ./generate-nginx-config.sh dev
+    # Le script génère default-dev.conf, on le copie vers default.conf
+    if [ -f nginx/conf.d/default-dev.conf ]; then
+        mv nginx/conf.d/default-dev.conf nginx/conf.d/default.conf
+    fi
     
     echo "🔄 Phase 1: Bases de données..."
     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d db nextcloud-db
