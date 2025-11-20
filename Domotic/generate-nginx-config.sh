@@ -19,19 +19,20 @@ SUBDOMAIN_PHPMYADMIN=${SUBDOMAIN_PHPMYADMIN:-"phpmyadmin"}
 SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
 SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
 
-OUTPUT_FILE="nginx/conf.d/default.conf"
-
-echo "🔧 Génération de la configuration Nginx..."
-
 if [ "$MODE" = "dev" ]; then
-    DOMAIN_BASE="localhost"
+    OUTPUT_FILE="nginx/conf.d/default-dev.conf"
+    DOMAIN_BASE="$DOMAIN"
     SSL_CERT="/etc/nginx/ssl/selfsigned.crt"
     SSL_KEY="/etc/nginx/ssl/selfsigned.key"
 else
+    OUTPUT_FILE="nginx/conf.d/default.conf"
     DOMAIN_BASE="$DOMAIN"
     SSL_CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
     SSL_KEY="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
 fi
+
+echo "🔧 Génération de la configuration Nginx..."
+echo "📝 Fichier de sortie: $OUTPUT_FILE"
 
 cat > "$OUTPUT_FILE" << EOF
 map \$http_upgrade \$connection_upgrade {
