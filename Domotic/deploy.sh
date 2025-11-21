@@ -23,6 +23,8 @@ SUBDOMAIN_GRAFANA=${SUBDOMAIN_GRAFANA:-"grafana"}
 SUBDOMAIN_PHPMYADMIN=${SUBDOMAIN_PHPMYADMIN:-"phpmyadmin"}
 SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
 SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
+SUBDOMAIN_LA4LDESDOMES=${SUBDOMAIN_LA4LDESDOMES:-"la4ldesdomes"}
+SUBDOMAIN_CAPITALOT=${SUBDOMAIN_CAPITALOT:-"capitalot"}
 
 echo "🚀 Déploiement Home Automation"
 echo "🏷️  Environnement: $ENV"
@@ -33,6 +35,8 @@ echo "   - Grafana:    ${SUBDOMAIN_GRAFANA}.${DOMAIN}"
 echo "   - phpMyAdmin: ${SUBDOMAIN_PHPMYADMIN}.${DOMAIN}"
 echo "   - Portainer:  ${SUBDOMAIN_PORTAINER}.${DOMAIN}"
 echo "   - Cloud:      ${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}"
+echo "   - La4ldesdomes: ${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN}"
+echo "   - Capitalot:  ${SUBDOMAIN_CAPITALOT}.${DOMAIN}"
 
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker non installé"
@@ -100,6 +104,8 @@ if [ "$ENV" = "dev" ]; then
     echo "   https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN}"
     echo "   https://${SUBDOMAIN_PORTAINER}.${DOMAIN}"
     echo "   https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}"
+    echo "   https://${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN}"
+    echo "   https://${SUBDOMAIN_CAPITALOT}.${DOMAIN}"
     echo ""
     echo "⚠️  Certificat auto-signé : ignorez l'avertissement de sécurité du navigateur"
     
@@ -147,7 +153,7 @@ EOF
     echo "🔐 Obtention certificats SSL pour tous les sous-domaines..."
     mkdir -p certbot/www/.well-known/acme-challenge
     
-    SUBDOMAINS="${SUBDOMAIN_API}.${DOMAIN},${SUBDOMAIN_GRAFANA}.${DOMAIN},${SUBDOMAIN_PHPMYADMIN}.${DOMAIN},${SUBDOMAIN_PORTAINER}.${DOMAIN},${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}"
+    SUBDOMAINS="${SUBDOMAIN_API}.${DOMAIN},${SUBDOMAIN_GRAFANA}.${DOMAIN},${SUBDOMAIN_PHPMYADMIN}.${DOMAIN},${SUBDOMAIN_PORTAINER}.${DOMAIN},${SUBDOMAIN_NEXTCLOUD}.${DOMAIN},${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN},${SUBDOMAIN_CAPITALOT}.${DOMAIN}"
     
     if [ "$ENV" = "production" ]; then
         docker compose run --rm --entrypoint certbot certbot certonly --webroot \
@@ -194,6 +200,8 @@ EOF
         echo "  - ${SUBDOMAIN_PHPMYADMIN}.$DOMAIN"
         echo "  - ${SUBDOMAIN_PORTAINER}.$DOMAIN"
         echo "  - ${SUBDOMAIN_NEXTCLOUD}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_LA4LDESDOMES}.$DOMAIN"
+        echo "  - ${SUBDOMAIN_CAPITALOT}.$DOMAIN"
         exit 1
     fi
     
@@ -210,6 +218,8 @@ EOF
     echo "   🗄️  phpMyAdmin:    https://${SUBDOMAIN_PHPMYADMIN}.$DOMAIN"
     echo "   🐳 Portainer:      https://${SUBDOMAIN_PORTAINER}.$DOMAIN"
     echo "   ☁️  Cloud:          https://${SUBDOMAIN_NEXTCLOUD}.$DOMAIN"
+    echo "   🚗 La4ldesdomes:  https://${SUBDOMAIN_LA4LDESDOMES}.$DOMAIN"
+    echo "   💰 Capitalot:     https://${SUBDOMAIN_CAPITALOT}.$DOMAIN"
     echo ""
     echo "✅ SSL Let's Encrypt configuré pour tous les domaines"
 fi

@@ -22,9 +22,11 @@ SUBDOMAIN_GRAFANA=${SUBDOMAIN_GRAFANA:-"grafana"}
 SUBDOMAIN_PHPMYADMIN=${SUBDOMAIN_PHPMYADMIN:-"phpmyadmin"}
 SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
 SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
+SUBDOMAIN_LA4LDESDOMES=${SUBDOMAIN_LA4LDESDOMES:-"la4ldesdomes"}
+SUBDOMAIN_CAPITALOT=${SUBDOMAIN_CAPITALOT:-"capitalot"}
 
 if [ "$MODE" = "dev" ]; then
-    OUTPUT_FILE="nginx/conf.d/default-dev.conf"
+    OUTPUT_FILE="nginx/conf.d/default.conf"
     DOMAIN_BASE="$DOMAIN"
     SSL_CERT="/etc/nginx/ssl/selfsigned.crt"
     SSL_KEY="/etc/nginx/ssl/selfsigned.key"
@@ -39,6 +41,10 @@ echo "🔧 Génération de la configuration Nginx..."
 echo "📝 Fichier de sortie: $OUTPUT_FILE"
 
 cat > "$OUTPUT_FILE" << EOF
+# Résolveur DNS pour la résolution dynamique des backends
+resolver 127.0.0.11 valid=10s;
+resolver_timeout 5s;
+
 map \$http_upgrade \$connection_upgrade {
     default upgrade;
     '' close;
@@ -60,19 +66,26 @@ server {
 EOF
 
 declare -A SERVICES=(
-    ["$SUBDOMAIN_API"]="api:8000|api|20|20"
-    ["$SUBDOMAIN_GRAFANA"]="grafana:3000|general|50|10|websocket"
-    ["$SUBDOMAIN_PHPMYADMIN"]="phpmyadmin:80|login|5|5|csp"
-    ["$SUBDOMAIN_PORTAINER"]="portainer:9000|general|50|10|websocket"
-    ["$SUBDOMAIN_NEXTCLOUD"]="nextcloud:80|general|100|20|nextcloud"
+    ["$SUBDOMAIN_API"]="api:8000|api|20|20||true"
+    ["$SUBDOMAIN_GRAFANA"]="grafana:3000|general|50|10|websocket|true"
+    ["$SUBDOMAIN_PHPMYADMIN"]="phpmyadmin:80|login|5|5|csp|true"
+    ["$SUBDOMAIN_PORTAINER"]="portainer:9000|general|50|10|websocket|true"
+    ["$SUBDOMAIN_NEXTCLOUD"]="nextcloud:80|general|100|20|nextcloud|true"
+    ["$SUBDOMAIN_LA4LDESDOMES"]="fourltrophy-frontend:3000|general|50|10|websocket|true"
+    ["$SUBDOMAIN_CAPITALOT"]="capitalot-frontend:3001|general|50|10|websocket|true"
 )
 
 for subdomain in "${!SERVICES[@]}"; do
-    IFS='|' read -r proxy_pass rate_zone burst conn_limit features <<< "${SERVICES[$subdomain]}"
+    IFS='|' read -r proxy_pass rate_zone burst conn_limit features optional <<< "${SERVICES[$subdomain]}"
+    
+    # Extraire le host et le port du proxy_pass
+    backend_host="${proxy_pass%%:*}"
+    backend_port="${proxy_pass##*:}"
     
     cat >> "$OUTPUT_FILE" << EOF
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;
     server_name ${subdomain}.${DOMAIN_BASE};
 
     ssl_certificate ${SSL_CERT};
@@ -106,7 +119,25 @@ EOF
 EOF
     fi
 
-    cat >> "$OUTPUT_FILE" << EOF
+    # Pour les services optionnels, utiliser une variable pour permettre la résolution DNS dynamique
+    if [ "$optional" = "true" ]; then
+        cat >> "$OUTPUT_FILE" << EOF
+
+    location / {
+        # Résolution DNS dynamique pour services optionnels
+        set \$backend_server ${backend_host};
+        proxy_pass http://\$backend_server:${backend_port};
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # Gestion d'erreur gracieuse si le service est down
+        proxy_intercept_errors on;
+        error_page 502 503 504 = @service_unavailable;
+EOF
+    else
+        cat >> "$OUTPUT_FILE" << EOF
 
     location / {
         proxy_pass http://${proxy_pass};
@@ -115,6 +146,7 @@ EOF
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
 EOF
+    fi
 
     if [ "$features" = "nextcloud" ]; then
         cat >> "$OUTPUT_FILE" << EOF
@@ -145,6 +177,20 @@ EOF
 
     cat >> "$OUTPUT_FILE" << EOF
     }
+EOF
+
+    # Ajouter la page d'erreur pour les services optionnels
+    if [ "$optional" = "true" ]; then
+        cat >> "$OUTPUT_FILE" << EOF
+
+    location @service_unavailable {
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service ${subdomain} est actuellement hors ligne ou en maintenance.","service":"${subdomain}"}';
+        add_header Content-Type application/json;
+    }
+EOF
+    fi
+
+    cat >> "$OUTPUT_FILE" << EOF
 }
 
 EOF
@@ -152,7 +198,8 @@ done
 
 cat >> "$OUTPUT_FILE" << EOF
 server {
-    listen 443 ssl http2 default_server;
+    listen 443 ssl default_server;
+    http2 on;
     server_name ${DOMAIN_BASE};
 
     ssl_certificate ${SSL_CERT};
@@ -166,7 +213,7 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
-        return 200 "Home Automation Services:\\n\\n- https://${SUBDOMAIN_API}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_GRAFANA}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PORTAINER}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN_BASE}\\n";
+        return 200 "Home Automation Services:\\n\\n- https://${SUBDOMAIN_API}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_GRAFANA}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PORTAINER}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN_BASE}\\n\\nApplications externes:\\n- https://${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_CAPITALOT}.${DOMAIN_BASE}\\n";
         add_header Content-Type text/plain;
     }
 }
