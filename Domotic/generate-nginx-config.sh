@@ -71,7 +71,7 @@ declare -A SERVICES=(
     ["$SUBDOMAIN_PHPMYADMIN"]="phpmyadmin:80|login|5|5|csp|true"
     ["$SUBDOMAIN_PORTAINER"]="portainer:9000|general|50|10|websocket|true"
     ["$SUBDOMAIN_NEXTCLOUD"]="nextcloud:80|general|100|20|nextcloud|true"
-    ["$SUBDOMAIN_LA4LDESDOMES"]="fourltrophy-frontend:3000|general|50|10|websocket|true"
+    ["$SUBDOMAIN_LA4LDESDOMES"]="fourltrophy-frontend:80|general|50|10|websocket|true"
     ["$SUBDOMAIN_CAPITALOT"]="capitalot-frontend:3001|general|50|10|websocket|true"
 )
 
