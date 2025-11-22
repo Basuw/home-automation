@@ -153,7 +153,9 @@ EOF
     echo "🔐 Obtention certificats SSL pour tous les sous-domaines..."
     mkdir -p certbot/www/.well-known/acme-challenge
     
-    SUBDOMAINS="${SUBDOMAIN_API}.${DOMAIN},${SUBDOMAIN_GRAFANA}.${DOMAIN},${SUBDOMAIN_PHPMYADMIN}.${DOMAIN},${SUBDOMAIN_PORTAINER}.${DOMAIN},${SUBDOMAIN_NEXTCLOUD}.${DOMAIN},${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN},${SUBDOMAIN_CAPITALOT}.${DOMAIN}"
+    # Certificats uniquement pour grafana, portainer, nextcloud, la4ldesdomes et capitalot
+    # Pas de certificats pour api et phpmyadmin
+    SUBDOMAINS="${SUBDOMAIN_GRAFANA}.${DOMAIN},${SUBDOMAIN_PORTAINER}.${DOMAIN},${SUBDOMAIN_NEXTCLOUD}.${DOMAIN},${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN},${SUBDOMAIN_CAPITALOT}.${DOMAIN}"
     
     if [ "$ENV" = "production" ]; then
         docker compose run --rm --entrypoint certbot certbot certonly --webroot \
@@ -195,13 +197,13 @@ EOF
         echo "❌ Certificats non créés"
         echo "Vérifiez que les DNS pointent vers ce serveur :"
         echo "  - $DOMAIN"
-        echo "  - ${SUBDOMAIN_API}.$DOMAIN"
         echo "  - ${SUBDOMAIN_GRAFANA}.$DOMAIN"
-        echo "  - ${SUBDOMAIN_PHPMYADMIN}.$DOMAIN"
         echo "  - ${SUBDOMAIN_PORTAINER}.$DOMAIN"
         echo "  - ${SUBDOMAIN_NEXTCLOUD}.$DOMAIN"
         echo "  - ${SUBDOMAIN_LA4LDESDOMES}.$DOMAIN"
         echo "  - ${SUBDOMAIN_CAPITALOT}.$DOMAIN"
+        echo ""
+        echo "Note: api et phpmyadmin n'utilisent pas de certificats SSL"
         exit 1
     fi
     
