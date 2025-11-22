@@ -106,7 +106,7 @@ services:
       - "5432"
     volumes:
       - ./Data/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - domotic-net
 
