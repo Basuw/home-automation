@@ -82,7 +82,7 @@ if [ "$ENV" = "dev" ]; then
     sleep 30
     
     echo "🔄 Phase 2: Services..."
-    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d api listener mosquitto phpmyadmin grafana portainer nextcloud
+    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d domotic-api listener mosquitto phpmyadmin grafana portainer nextcloud
     sleep 20
     
     echo "🔄 Phase 3: Nginx..."
@@ -120,7 +120,7 @@ else
     sleep 30
     
     echo "🔄 Phase 2: Services..."
-    docker compose up -d api listener mosquitto phpmyadmin grafana portainer nextcloud
+    docker compose up -d domotic-api listener mosquitto phpmyadmin grafana portainer nextcloud
     sleep 20
     
     echo "🔄 Phase 3: SSL Setup - Nginx HTTP temporaire..."
