@@ -86,12 +86,12 @@ if [ "$ENV" = "dev" ]; then
     sleep 20
     
     echo "🔄 Phase 3: Nginx..."
-    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d nginx
+    docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d nginx-proxy
     sleep 5
     
-    if ! docker compose ps nginx | grep -q "Up"; then
+    if ! docker compose ps nginx-proxy | grep -q "Up"; then
         echo "❌ Nginx n'a pas démarré"
-        docker compose logs nginx
+        docker compose logs nginx-proxy
         exit 1
     fi
     
@@ -141,12 +141,12 @@ server {
 EOF
     
     mv nginx/conf.d/default.conf nginx/conf.d/default.conf.bak
-    docker compose up -d nginx
+    docker compose up -d nginx-proxy
     sleep 10
     
-    if ! docker compose ps nginx | grep -q "Up"; then
+    if ! docker compose ps nginx-proxy | grep -q "Up"; then
         echo "❌ Nginx n'a pas démarré"
-        docker compose logs nginx
+        docker compose logs nginx-proxy
         exit 1
     fi
     
@@ -184,12 +184,12 @@ EOF
         rm -f nginx/conf.d/default-http.conf
         mv nginx/conf.d/default.conf.bak nginx/conf.d/default.conf
         
-        docker compose restart nginx
+        docker compose restart nginx-proxy
         sleep 5
         
-        if ! docker compose ps nginx | grep -q "Up"; then
+        if ! docker compose ps nginx-proxy | grep -q "Up"; then
             echo "❌ Nginx n'a pas redémarré avec SSL"
-            docker compose logs nginx
+            docker compose logs nginx-proxy
             exit 1
         fi
         echo "✅ Nginx avec SSL activé"
@@ -208,7 +208,7 @@ EOF
     fi
     
     echo "🔄 Renouvellement automatique SSL..."
-    (crontab -l 2>/dev/null; echo "0 3 * * * cd $(pwd) && docker compose run --rm certbot renew && docker compose restart nginx") | crontab -
+    (crontab -l 2>/dev/null; echo "0 3 * * * cd $(pwd) && docker compose run --rm certbot renew && docker compose restart nginx-proxy") | crontab -
     
     echo ""
     echo "🎉 Déploiement terminé !"

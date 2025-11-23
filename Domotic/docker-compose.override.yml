@@ -4,7 +4,7 @@
 
 services:
   # Désactiver Nginx et Certbot en développement
-  nginx:
+  nginx-proxy:
     profiles: ["production"]
   
   certbot:

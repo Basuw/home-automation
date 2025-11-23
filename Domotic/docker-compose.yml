@@ -1,8 +1,8 @@
 services:
   # Nginx Reverse Proxy with SSL
-  nginx:
+  nginx-proxy:
     image: nginx:alpine
-    container_name: nginx
+    container_name: nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -198,7 +198,7 @@ services:
       OVERWRITEHOST: ${SUBDOMAIN_NEXTCLOUD}.${DOMAIN}
       OVERWRITEPROTOCOL: https
       APACHE_DISABLE_REWRITE_IP: 1
-      TRUSTED_PROXIES: nginx
+      TRUSTED_PROXIES: nginx-proxy
       TZ: ${TIMEZONE}
     volumes:
       - nextcloud_data:/var/www/html
