@@ -121,6 +121,38 @@ EOF
 
     # Pour les services optionnels, utiliser une variable pour permettre la résolution DNS dynamique
     if [ "$optional" = "true" ]; then
+        # Ajouter la route API pour la4ldesdomes
+        if [ "$subdomain" = "$SUBDOMAIN_LA4LDESDOMES" ]; then
+            cat >> "$OUTPUT_FILE" << EOF
+
+    # Route pour l'API backend - accessible uniquement par le frontend via proxy interne
+    location /4ldesdomes-api/ {
+        set \$backend_server fourltrophy-backend;
+        proxy_pass http://\$backend_server:8001/api/;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # Headers CORS pour permettre au frontend d'accéder à l'API
+        add_header Access-Control-Allow-Origin "https://\${subdomain}.\${DOMAIN_BASE}" always;
+        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
+        add_header Access-Control-Allow-Credentials "true" always;
+        
+        # Gérer les requêtes OPTIONS (preflight)
+        if (\$request_method = OPTIONS) {
+            return 204;
+        }
+        
+        # Gestion d'erreur gracieuse si le service est down
+        proxy_intercept_errors on;
+        error_page 502 503 504 = @api_unavailable;
+    }
+
+EOF
+        fi
+        
         cat >> "$OUTPUT_FILE" << EOF
 
     location / {
@@ -181,6 +213,17 @@ EOF
 
     # Ajouter la page d'erreur pour les services optionnels
     if [ "$optional" = "true" ]; then
+        # Ajouter la page d'erreur pour l'API la4ldesdomes
+        if [ "$subdomain" = "$SUBDOMAIN_LA4LDESDOMES" ]; then
+            cat >> "$OUTPUT_FILE" << EOF
+
+    location @api_unavailable {
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. L'API la4ldesdomes est actuellement hors ligne ou en maintenance.","service":"la4ldesdomes-api"}';
+        add_header Content-Type application/json;
+    }
+EOF
+        fi
+        
         cat >> "$OUTPUT_FILE" << EOF
 
     location @service_unavailable {
