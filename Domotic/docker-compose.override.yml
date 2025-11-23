@@ -11,7 +11,7 @@ services:
     profiles: ["production"]
   
   # Exposer les ports directement en développement
-  api:
+  domotic-api:
     ports:
       - "8000:8000"
   
