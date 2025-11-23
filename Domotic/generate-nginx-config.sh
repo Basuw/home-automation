@@ -66,7 +66,7 @@ server {
 EOF
 
 declare -A SERVICES=(
-    ["$SUBDOMAIN_API"]="api:8000|api|20|20||true"
+    ["$SUBDOMAIN_API"]="domotic-api:8000|api|20|20||true"
     ["$SUBDOMAIN_GRAFANA"]="grafana:3000|general|50|10|websocket|true"
     ["$SUBDOMAIN_PHPMYADMIN"]="phpmyadmin:80|login|5|5|csp|true"
     ["$SUBDOMAIN_PORTAINER"]="portainer:9000|general|50|10|websocket|true"
