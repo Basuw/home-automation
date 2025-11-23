@@ -135,7 +135,7 @@ EOF
         proxy_set_header X-Forwarded-Proto \$scheme;
         
         # Headers CORS pour permettre au frontend d'accéder à l'API
-        add_header Access-Control-Allow-Origin "https://\${subdomain}.\${DOMAIN_BASE}" always;
+        add_header Access-Control-Allow-Origin "https://${subdomain}.${DOMAIN_BASE}" always;
         add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
         add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
         add_header Access-Control-Allow-Credentials "true" always;
