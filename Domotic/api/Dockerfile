@@ -5,7 +5,7 @@ FROM python:3.12
 WORKDIR /app
 
 # Copier les fichiers nécessaires
-COPY rgb.py requirements.txt .env ./
+COPY rgb.py requirements.txt ./
 
 # Installer les dépendances
 RUN pip install --no-cache-dir -r requirements.txt
