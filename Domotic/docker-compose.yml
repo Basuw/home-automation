@@ -15,7 +15,7 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - nginx_logs:/var/log/nginx
     depends_on:
-      - api
+      - domotic-api
       - grafana
       - phpmyadmin
       - portainer
@@ -37,9 +37,9 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 1; done;'"
 
-  api:
+  domotic-api:
     build: ./api
-    container_name: api
+    container_name: domotic-api
     restart: unless-stopped
     expose:
       - "8000"
