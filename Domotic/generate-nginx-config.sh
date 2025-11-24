@@ -139,21 +139,9 @@ EOF
 
     # Route pour l'API backend
     location /4ldesdomes-api/ {
-        rewrite ^/4ldesdomes-api/(.*)\$ /\$1 break;
         set \$backend_server fourltrophy-backend;
-        proxy_pass http://\$backend_server:8001;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
         
-        # Headers CORS
-        add_header 'Access-Control-Allow-Origin' 'https://la4ldesdomes.bastien-jacquelin.fr' always;
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
-        add_header 'Access-Control-Allow-Headers' '*' always;
-        add_header 'Access-Control-Allow-Credentials' 'true' always;
-        
-        # Gérer les requêtes OPTIONS (preflight CORS)
+        # Gérer les requêtes OPTIONS (preflight CORS) en premier
         if (\$request_method = 'OPTIONS') {
             add_header 'Access-Control-Allow-Origin' 'https://la4ldesdomes.bastien-jacquelin.fr' always;
             add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
@@ -163,6 +151,20 @@ EOF
             add_header 'Content-Length' 0;
             return 204;
         }
+        
+        rewrite ^/4ldesdomes-api/(.*)\$ /\$1 break;
+        
+        proxy_pass http://\$backend_server:8001;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # Headers CORS pour les requêtes normales
+        add_header 'Access-Control-Allow-Origin' 'https://la4ldesdomes.bastien-jacquelin.fr' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' '*' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
         
         # Gestion d'erreur gracieuse si le service est down
         proxy_intercept_errors on;
