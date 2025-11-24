@@ -140,7 +140,7 @@ EOF
     # Route pour l'API backend
     location /4ldesdomes-api/ {
         set \$backend_server fourltrophy-backend;
-        proxy_pass http://\$backend_server:8001/;
+        proxy_pass http://\$backend_server:8001;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
