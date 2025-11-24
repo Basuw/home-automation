@@ -137,7 +137,7 @@ EOF
         if [ "$subdomain" = "$SUBDOMAIN_LA4LDESDOMES" ]; then
             cat >> "$OUTPUT_FILE" << EOF
 
-    # Route pour l'API backend - accessible uniquement par le frontend via proxy interne
+    # Route pour l'API backend
     location /4ldesdomes-api/ {
         set \$backend_server fourltrophy-backend;
         proxy_pass http://\$backend_server:8001/;
@@ -145,7 +145,23 @@ EOF
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header Origin https://\$host;
+        
+        # Headers CORS
+        add_header 'Access-Control-Allow-Origin' 'https://la4ldesdomes.bastien-jacquelin.fr' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' '*' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        
+        # Gérer les requêtes OPTIONS (preflight CORS)
+        if (\$request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' 'https://la4ldesdomes.bastien-jacquelin.fr' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' '*' always;
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain; charset=utf-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
         
         # Gestion d'erreur gracieuse si le service est down
         proxy_intercept_errors on;
