@@ -139,6 +139,7 @@ EOF
 
     # Route pour l'API backend
     location /4ldesdomes-api/ {
+        rewrite ^/4ldesdomes-api/(.*)\$ /\$1 break;
         set \$backend_server fourltrophy-backend;
         proxy_pass http://\$backend_server:8001;
         proxy_set_header Host \$host;
