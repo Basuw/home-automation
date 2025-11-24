@@ -226,7 +226,7 @@ EOF
             cat >> "$OUTPUT_FILE" << 'EOF'
 
     location @api_unavailable {
-        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. L'\''API la4ldesdomes est actuellement hors ligne ou en maintenance.","service":"la4ldesdomes-api"}';
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service API la4ldesdomes est actuellement hors ligne ou en maintenance.","service":"la4ldesdomes-api"}';
         add_header Content-Type application/json;
     }
 EOF
