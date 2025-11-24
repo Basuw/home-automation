@@ -128,17 +128,13 @@ EOF
     # Route pour l'API backend - accessible uniquement par le frontend via proxy interne
     location /4ldesdomes-api/ {
         set \$backend_server fourltrophy-backend;
-        proxy_pass http://\$backend_server:8001/api/;
+        proxy_pass http://\$backend_server:8001/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
         
-        # Headers CORS pour permettre au frontend d'accéder à l'API
-        add_header Access-Control-Allow-Origin "https://${subdomain}.${DOMAIN_BASE}" always;
-        add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
-        add_header Access-Control-Allow-Headers "Content-Type, Authorization" always;
-        add_header Access-Control-Allow-Credentials "true" always;
+        # Pas besoin de headers CORS - le backend les gère
         
         # Gérer les requêtes OPTIONS (preflight)
         if (\$request_method = OPTIONS) {
