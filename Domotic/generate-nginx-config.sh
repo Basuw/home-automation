@@ -145,13 +145,7 @@ EOF
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        # Pas besoin de headers CORS - le backend les gère
-        
-        # Gérer les requêtes OPTIONS (preflight)
-        if (\$request_method = OPTIONS) {
-            return 204;
-        }
+        proxy_set_header Origin https://\$host;
         
         # Gestion d'erreur gracieuse si le service est down
         proxy_intercept_errors on;
