@@ -1,17 +1,29 @@
 #!/bin/bash
 
-set -e
-
+# Charger les variables d'environnement depuis .env
 if [ -f .env ]; then
-    set -a
-    source <(grep -v '^#' .env | grep -v '^\s*$' | sed 's/^\([^=]*\)=\(.*\)$/\1="\2"/')
-    set +a
+    while IFS='=' read -r key value; do
+        # Ignorer les commentaires et lignes vides
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+        # Supprimer les espaces autour de la clé
+        key=$(echo "$key" | xargs)
+        # Exporter la variable
+        export "$key=$value"
+    done < .env
 fi
 
+# Charger les variables d'environnement depuis subdomains.env
 if [ -f subdomains.env ]; then
-    set -a
-    source <(grep -v '^#' subdomains.env | grep -v '^\s*$' | sed 's/^\([^=]*\)=\(.*\)$/\1="\2"/')
-    set +a
+    while IFS='=' read -r key value; do
+        # Ignorer les commentaires et lignes vides
+        [[ "$key" =~ ^#.*$ ]] && continue
+        [[ -z "$key" ]] && continue
+        # Supprimer les espaces autour de la clé
+        key=$(echo "$key" | xargs)
+        # Exporter la variable
+        export "$key=$value"
+    done < subdomains.env
 fi
 
 MODE=${1:-"production"}
@@ -211,10 +223,10 @@ EOF
     if [ "$optional" = "true" ]; then
         # Ajouter la page d'erreur pour l'API la4ldesdomes
         if [ "$subdomain" = "$SUBDOMAIN_LA4LDESDOMES" ]; then
-            cat >> "$OUTPUT_FILE" << EOF
+            cat >> "$OUTPUT_FILE" << 'EOF'
 
     location @api_unavailable {
-        return 503 "{"status":"unavailable","message":"Service temporairement indisponible. L'API la4ldesdomes est actuellement hors ligne ou en maintenance.","service":"la4ldesdomes-api"}";
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. L'\''API la4ldesdomes est actuellement hors ligne ou en maintenance.","service":"la4ldesdomes-api"}';
         add_header Content-Type application/json;
     }
 EOF
@@ -223,7 +235,7 @@ EOF
         cat >> "$OUTPUT_FILE" << EOF
 
     location @service_unavailable {
-        return 503 "{"status":"unavailable","message":"Service temporairement indisponible. Le service ${subdomain} est actuellement hors ligne ou en maintenance.","service":"${subdomain}"}";
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service ${subdomain} est actuellement hors ligne ou en maintenance.","service":"${subdomain}"}';
         add_header Content-Type application/json;
     }
 EOF
