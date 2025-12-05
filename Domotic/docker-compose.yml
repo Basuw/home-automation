@@ -24,7 +24,6 @@ services:
     networks:
       - domotic-net
       - shared-network
-      - fourltrophy-network
 
   # Let's Encrypt SSL Certificate Manager
   certbot:
@@ -222,6 +221,3 @@ networks:
   shared-network:
     external: true
     name: shared-network
-  fourltrophy-network:
-    external: true
-    name: la-4l-des-domes_fourltrophy-network

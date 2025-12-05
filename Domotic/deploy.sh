@@ -52,8 +52,13 @@ echo "📁 Création des dossiers..."
 mkdir -p nginx/conf.d nginx/ssl certbot/conf certbot/www mosquitto/data mosquitto/log
 
 echo "🔒 Configuration des permissions..."
-chmod -R 755 nginx/ certbot/
-chmod -R 777 mosquitto/data mosquitto/log
+chmod -R 755 nginx/ certbot/ 2>/dev/null || true
+chmod -R 777 mosquitto/data mosquitto/log 2>/dev/null || true
+
+echo "🌐 Création du réseau Docker partagé..."
+# Création du réseau partagé unique pour tous les services
+docker network inspect shared-network >/dev/null 2>&1 || docker network create shared-network
+echo "✅ Réseau Docker partagé créé ou déjà existant"
 
 if [ "$ENV" = "dev" ]; then
     echo "🔧 Mode DEV: Certificat auto-signé"
@@ -184,8 +189,17 @@ EOF
         rm -f nginx/conf.d/default-http.conf
         mv nginx/conf.d/default.conf.bak nginx/conf.d/default.conf
         
-        docker compose restart nginx-proxy
-        sleep 5
+        # Test et reload nginx sans redémarrer le container
+        echo "🔧 Rechargement de la configuration Nginx..."
+        docker exec nginx-proxy nginx -t
+        if [ $? -eq 0 ]; then
+            docker exec nginx-proxy nginx -s reload
+            sleep 2
+        else
+            echo "❌ Erreur dans la configuration Nginx"
+            docker compose logs nginx-proxy
+            exit 1
+        fi
         
         if ! docker compose ps nginx-proxy | grep -q "Up"; then
             echo "❌ Nginx n'a pas redémarré avec SSL"
