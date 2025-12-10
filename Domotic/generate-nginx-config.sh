@@ -36,6 +36,7 @@ SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
 SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
 SUBDOMAIN_LA4LDESDOMES=${SUBDOMAIN_LA4LDESDOMES:-"la4ldesdomes"}
 SUBDOMAIN_CAPITALOT=${SUBDOMAIN_CAPITALOT:-"capitalot"}
+SUBDOMAIN_DAE_OPTIMIZZER=${SUBDOMAIN_DAE_OPTIMIZZER:-"dae-optimizzer"}
 
 if [ "$MODE" = "dev" ]; then
     OUTPUT_FILE="nginx/conf.d/default.conf"
@@ -277,7 +278,7 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
-        return 200 "Home Automation Services:\\n\\n- https://${SUBDOMAIN_API}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_GRAFANA}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PORTAINER}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN_BASE}\\n\\nApplications externes:\\n- https://${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_CAPITALOT}.${DOMAIN_BASE}\\n";
+        return 200 "Home Automation Services:\\n\\n- https://${SUBDOMAIN_API}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_GRAFANA}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_PORTAINER}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_NEXTCLOUD}.${DOMAIN_BASE}\\n\\nApplications externes:\\n- https://${SUBDOMAIN_LA4LDESDOMES}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_CAPITALOT}.${DOMAIN_BASE}\\n- https://${SUBDOMAIN_DAE_OPTIMIZZER}.${DOMAIN_BASE}\\n";
         add_header Content-Type text/plain;
     }
 }
