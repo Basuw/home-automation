@@ -86,6 +86,7 @@ declare -A SERVICES=(
     ["$SUBDOMAIN_NEXTCLOUD"]="nextcloud:80|general|100|20|nextcloud|true"
     ["$SUBDOMAIN_LA4LDESDOMES"]="fourltrophy-frontend:80|general|50|10|websocket|true"
     ["$SUBDOMAIN_CAPITALOT"]="capitalot-frontend:3001|general|50|10|websocket|true"
+    ["$SUBDOMAIN_DAE_OPTIMIZZER"]="dae_frontend:80|general|50|10|websocket|true"
 )
 
 for subdomain in "${!SERVICES[@]}"; do
@@ -168,6 +169,29 @@ EOF
         add_header 'Access-Control-Allow-Credentials' 'true' always;
         
         # Gestion d'erreur gracieuse si le service est down
+        proxy_intercept_errors on;
+        error_page 502 503 504 = @api_unavailable;
+    }
+
+EOF
+        fi
+        
+        # Ajouter la route API pour dae-optimizzer
+        if [ "$subdomain" = "$SUBDOMAIN_DAE_OPTIMIZZER" ]; then
+            cat >> "$OUTPUT_FILE" << EOF
+
+    # Route pour l'API backend
+    location /dae-api/ {
+        set \$backend_server dae_api;
+        
+        rewrite ^/dae-api/(.*)\$ /\$1 break;
+        
+        proxy_pass http://\$backend_server:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
         proxy_intercept_errors on;
         error_page 502 503 504 = @api_unavailable;
     }
