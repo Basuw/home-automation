@@ -31,7 +31,7 @@ MODE=${1:-"production"}
 DOMAIN=${DOMAIN:-"yourdomain.com"}
 SUBDOMAIN_API=${SUBDOMAIN_API:-"api"}
 SUBDOMAIN_GRAFANA=${SUBDOMAIN_GRAFANA:-"grafana"}
-SUBDOMAIN_PHPMYADMIN=${SUBDOMAIN_PHPMYADMIN:-"phpmyadmin"}
+SUBDOMAIN_DB=${SUBDOMAIN_DB:-"db"}
 SUBDOMAIN_PORTAINER=${SUBDOMAIN_PORTAINER:-"portainer"}
 SUBDOMAIN_NEXTCLOUD=${SUBDOMAIN_NEXTCLOUD:-"cloud"}
 SUBDOMAIN_LA4LDESDOMES=${SUBDOMAIN_LA4LDESDOMES:-"la4ldesdomes"}
@@ -81,7 +81,7 @@ EOF
 declare -A SERVICES=(
     ["$SUBDOMAIN_API"]="domotic-api:8000|api|20|20||true"
     ["$SUBDOMAIN_GRAFANA"]="grafana:3000|general|50|10|websocket|true"
-    ["$SUBDOMAIN_PHPMYADMIN"]="phpmyadmin:80|login|5|5|csp|true"
+    ["$SUBDOMAIN_DB"]="adminer:8080|login|20|10|csp|true"
     ["$SUBDOMAIN_PORTAINER"]="portainer:9000|general|50|10|websocket|true"
     ["$SUBDOMAIN_NEXTCLOUD"]="nextcloud:80|general|100|20|nextcloud|true"
     ["$SUBDOMAIN_LA4LDESDOMES"]="fourltrophy-frontend:80|general|50|10|websocket|true"
@@ -199,6 +199,24 @@ EOF
 EOF
         fi
         
+        # Ajouter location pour fichiers statiques d'Adminer (sans rate limiting)
+        if [ "$subdomain" = "$SUBDOMAIN_DB" ]; then
+            cat >> "$OUTPUT_FILE" << EOF
+
+    # Pas de rate limiting pour les fichiers statiques
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        set \$backend_server ${backend_host};
+        proxy_pass http://\$backend_server:${backend_port};
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_redirect off;
+    }
+
+EOF
+        fi
+        
         cat >> "$OUTPUT_FILE" << EOF
 
     location / {
@@ -244,7 +262,7 @@ EOF
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
 EOF
-    elif [ "$subdomain" = "$SUBDOMAIN_PHPMYADMIN" ]; then
+    elif [ "$subdomain" = "$SUBDOMAIN_DB" ]; then
         cat >> "$OUTPUT_FILE" << EOF
         proxy_redirect off;
         

@@ -18,7 +18,7 @@ services:
     depends_on:
       - domotic-api
       - grafana
-      - phpmyadmin
+      - adminer
       - portainer
       - nextcloud
     networks:
@@ -110,24 +110,19 @@ services:
     networks:
       - domotic-net
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
+  adminer:
+    image: adminer:latest
+    container_name: adminer
     restart: always
     environment:
-      PMA_HOST: nextcloud-db
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      PMA_ABSOLUTE_URI: https://${SUBDOMAIN_PHPMYADMIN}.${DOMAIN}/
-      UPLOAD_LIMIT: 100M
+      ADMINER_DEFAULT_SERVER: nextcloud-db
+      ADMINER_DESIGN: pepa-linha-dark
       TZ: ${TIMEZONE}
     expose:
-      - "80"
-    depends_on:
-      - nextcloud-db
+      - "8080"
     networks:
       - domotic-net
+      - shared-network
 
   grafana:
     image: grafana/grafana

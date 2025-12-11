@@ -32,7 +32,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=100 nodelay;
@@ -81,7 +81,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=50 nodelay;
@@ -123,7 +123,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=50 nodelay;
@@ -205,12 +205,9 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
-
-    limit_req zone=login burst=20 nodelay;
-    limit_conn conn_limit_per_ip 10;
 
     # Pas de rate limiting pour les fichiers statiques
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
@@ -223,8 +220,11 @@ server {
         proxy_redirect off;
     }
 
-
     location / {
+        # Rate limiting léger pour les pages dynamiques
+        limit_req zone=login burst=20 nodelay;
+        limit_conn conn_limit_per_ip 10;
+        
         # Résolution DNS dynamique pour services optionnels
         set $backend_server adminer;
         proxy_pass http://$backend_server:8080;
@@ -243,7 +243,7 @@ server {
     }
 
     location @service_unavailable {
-        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service db est actuellement hors ligne ou en maintenance.","service":"db"}';
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service adminer est actuellement hors ligne ou en maintenance.","service":"adminer"}';
         add_header Content-Type application/json;
     }
 }
@@ -260,7 +260,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=api burst=20 nodelay;
@@ -298,7 +298,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=50 nodelay;
@@ -320,9 +320,7 @@ server {
         error_page 502 503 504 = @api_unavailable;
     }
 
-
     location / {
-        # Résolution DNS dynamique pour services optionnels
         set $backend_server dae_frontend;
         proxy_pass http://$backend_server:80;
         proxy_set_header Host $host;
@@ -330,7 +328,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         
-        # Gestion d'erreur gracieuse si le service est down
         proxy_intercept_errors on;
         error_page 502 503 504 = @service_unavailable;
         
@@ -339,8 +336,13 @@ server {
         proxy_set_header Connection $connection_upgrade;
     }
 
+    location @api_unavailable {
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service API DAE est actuellement hors ligne ou en maintenance.","service":"dae-api"}';
+        add_header Content-Type application/json;
+    }
+
     location @service_unavailable {
-        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service dae-optimizzer est actuellement hors ligne ou en maintenance.","service":"dae-optimizzer"}';
+        return 503 '{"status":"unavailable","message":"Service temporairement indisponible. Le service DAE est actuellement hors ligne ou en maintenance.","service":"dae"}';
         add_header Content-Type application/json;
     }
 }
@@ -357,7 +359,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=50 nodelay;
@@ -399,7 +401,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     limit_req zone=general burst=50 nodelay;
@@ -441,7 +443,7 @@ server {
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=()" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
 
     location / {
