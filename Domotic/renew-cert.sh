@@ -17,7 +17,7 @@ if [ -f subdomains.env ]; then
 fi
 
 DOMAIN=${DOMAIN:-"bastien-jacquelin.fr"}
-EMAIL=${LETSENCRYPT_EMAIL:-"bastien.jacquelin@gmail.com"}
+EMAIL=${LETSENCRYPT_EMAIL:-"basou.gamin@gmail.com"}
 
 SUBDOMAIN_API=${SUBDOMAIN_API:-"api"}
 SUBDOMAIN_GRAFANA=${SUBDOMAIN_GRAFANA:-"grafana"}
